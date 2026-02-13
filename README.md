@@ -19,6 +19,8 @@ A lightweight campus collaboration MVP for students to discover, create, and man
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcryptjs
 
+#
+
 ### Frontend
 - **Framework**: React 18
 - **Build Tool**: Vite

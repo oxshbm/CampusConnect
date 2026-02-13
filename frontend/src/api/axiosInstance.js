@@ -25,7 +25,8 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       removeToken();
-      window.location.href = '/login';
+      // Don't hard-redirect here; let route guards and components handle auth errors
+      // ProtectedRoute will redirect to /login on next navigation when token is missing
     }
     return Promise.reject(error);
   }

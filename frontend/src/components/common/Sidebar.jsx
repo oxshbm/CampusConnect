@@ -17,6 +17,7 @@ const Sidebar = () => {
   const sidebarItems = [
     { label: 'Study Groups', icon: '📚', path: '/', active: true },
     { label: 'Project Partner', icon: '🚀', path: '/projects', active: true },
+    { label: 'Events Calendar', icon: '📅', path: '/events', active: true },
     { label: 'Feature 2', icon: '🔧', path: '/feature2', active: false },
     { label: 'Feature 3', icon: '📊', path: '/feature3', active: false },
     { label: 'Feature 4', icon: '⚡', path: '/feature4', active: false },

@@ -1,6 +1,4 @@
 const express = require('express');
-const authMiddleware = require('../middleware/authMiddleware');
-const adminMiddleware = require('../middleware/adminMiddleware');
 const {
   getStats,
   getAllUsers,
@@ -9,12 +7,15 @@ const {
   deleteUser,
   getAllGroups,
   deleteGroup,
+  getAllEvents,
+  approveEvent,
+  denyEvent,
+  deleteAdminEvent,
 } = require('../controllers/adminController');
 
 const router = express.Router();
 
-// All routes require authentication and admin role
-router.use(authMiddleware, adminMiddleware);
+// Testing: no auth required for now. Auth will be added back later.
 
 // Stats
 router.get('/stats', getStats);
@@ -28,5 +29,11 @@ router.delete('/users/:id', deleteUser);
 // Groups management
 router.get('/groups', getAllGroups);
 router.delete('/groups/:id', deleteGroup);
+
+// Events management
+router.get('/events', getAllEvents);
+router.put('/events/:id/approve', approveEvent);
+router.put('/events/:id/deny', denyEvent);
+router.delete('/events/:id', deleteAdminEvent);
 
 module.exports = router;

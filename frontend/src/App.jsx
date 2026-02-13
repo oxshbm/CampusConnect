@@ -14,10 +14,13 @@ import ProfilePage from './pages/ProfilePage';
 import ProjectsPage from './pages/ProjectsPage';
 import CreateProjectPage from './pages/CreateProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
+import EventsPage from './pages/EventsPage';
+import CreateEventPage from './pages/CreateEventPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminGroups from './pages/admin/AdminGroups';
 import AdminProjects from './pages/admin/AdminProjects';
+import AdminEvents from './pages/admin/AdminEvents';
 
 function App() {
   return (
@@ -38,6 +41,8 @@ function App() {
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/projects/create" element={<CreateProjectPage />} />
               <Route path="/projects/:id" element={<ProjectDetailPage />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/events/create" element={<CreateEventPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
@@ -49,6 +54,7 @@ function App() {
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/groups" element={<AdminGroups />} />
               <Route path="/admin/projects" element={<AdminProjects />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
             </Route>
           </Route>
 

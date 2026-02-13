@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const StudyGroup = require('../models/StudyGroup');
+const Event = require('../models/Event');
 
 const getStats = async (req, res) => {
   try {
@@ -187,6 +188,90 @@ const deleteGroup = async (req, res) => {
   }
 };
 
+const getAllEvents = async (req, res) => {
+  try {
+    const events = await Event.find()
+      .populate('createdBy', 'name email')
+      .populate('attendees', 'name email')
+      .sort('-createdAt');
+
+    res.json({
+      success: true,
+      data: events,
+    });
+  } catch (error) {
+    console.error('GetAllEvents error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch events' });
+  }
+};
+
+const approveEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const event = await Event.findByIdAndUpdate(id, { status: 'approved' }, { new: true })
+      .populate('createdBy', 'name email')
+      .populate('attendees', 'name email');
+
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Event "${event.title}" has been approved.`,
+      data: event,
+    });
+  } catch (error) {
+    console.error('ApproveEvent error:', error);
+    res.status(500).json({ success: false, message: 'Failed to approve event' });
+  }
+};
+
+const denyEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const event = await Event.findByIdAndUpdate(id, { status: 'denied' }, { new: true })
+      .populate('createdBy', 'name email')
+      .populate('attendees', 'name email');
+
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Event "${event.title}" has been denied.`,
+      data: event,
+    });
+  } catch (error) {
+    console.error('DenyEvent error:', error);
+    res.status(500).json({ success: false, message: 'Failed to deny event' });
+  }
+};
+
+const deleteAdminEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const event = await Event.findById(id);
+    if (!event) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    await Event.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: `Event "${event.title}" has been deleted.`,
+    });
+  } catch (error) {
+    console.error('DeleteAdminEvent error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete event' });
+  }
+};
+
 module.exports = {
   getStats,
   getAllUsers,
@@ -195,4 +280,8 @@ module.exports = {
   deleteUser,
   getAllGroups,
   deleteGroup,
+  getAllEvents,
+  approveEvent,
+  denyEvent,
+  deleteAdminEvent,
 };

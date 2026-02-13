@@ -27,3 +27,19 @@ export const getAllGroups = async () => {
 export const deleteGroup = async (id) => {
   return axiosInstance.delete(`/admin/groups/${id}`);
 };
+
+export const getAllAdminEvents = async () => {
+  return axiosInstance.get('/admin/events');
+};
+
+export const approveEvent = async (id) => {
+  return axiosInstance.put(`/admin/events/${id}/approve`);
+};
+
+export const denyEvent = async (id) => {
+  return axiosInstance.put(`/admin/events/${id}/deny`);
+};
+
+export const deleteAdminEvent = async (id) => {
+  return axiosInstance.delete(`/admin/events/${id}`);
+};
