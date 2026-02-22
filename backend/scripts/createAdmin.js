@@ -28,7 +28,7 @@ const createAdmin = async () => {
       email: adminEmail,
       password: hashedPassword,
       course: 'Administration',
-      year: 0,
+      year: 1,
       role: 'admin',
       isBanned: false,
     });
