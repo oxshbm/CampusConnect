@@ -66,7 +66,7 @@ const getGroupById = async (req, res) => {
 
 const createGroup = async (req, res) => {
   try {
-    const { name, subject, description, semester, tags, visibility, maxMembers } = req.body;
+    const { name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration } = req.body;
 
     if (!name || !subject) {
       return res.status(400).json({ success: false, message: 'Name and subject are required' });
@@ -82,6 +82,11 @@ const createGroup = async (req, res) => {
       createdBy: req.user._id,
       members: [req.user._id],
       maxMembers: maxMembers || 30,
+      meetingType: meetingType || 'virtual',
+      location: location || '',
+      scheduleDays: scheduleDays || [],
+      startTime: startTime || '',
+      duration: duration || '',
     });
 
     await group.save();
@@ -117,7 +122,7 @@ const updateGroup = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only creator can update group' });
     }
 
-    const { name, subject, description, semester, tags, visibility, maxMembers } = req.body;
+    const { name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration } = req.body;
 
     if (name) group.name = name;
     if (subject) group.subject = subject;
@@ -126,6 +131,11 @@ const updateGroup = async (req, res) => {
     if (tags) group.tags = tags.map((tag) => tag.toLowerCase());
     if (visibility) group.visibility = visibility;
     if (maxMembers) group.maxMembers = maxMembers;
+    if (meetingType) group.meetingType = meetingType;
+    if (location !== undefined) group.location = location;
+    if (scheduleDays) group.scheduleDays = scheduleDays;
+    if (startTime !== undefined) group.startTime = startTime;
+    if (duration !== undefined) group.duration = duration;
 
     await group.save();
 

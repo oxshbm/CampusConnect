@@ -33,7 +33,12 @@ const GroupDetailPage = () => {
         formData.semester,
         formData.tags,
         formData.visibility,
-        formData.maxMembers
+        formData.maxMembers,
+        formData.meetingType,
+        formData.location,
+        formData.scheduleDays,
+        formData.startTime,
+        formData.duration
       );
       setGroup(updated);
       setIsEditing(false);
@@ -47,7 +52,7 @@ const GroupDetailPage = () => {
   const isCreator = user && group.createdBy._id === user.id;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>

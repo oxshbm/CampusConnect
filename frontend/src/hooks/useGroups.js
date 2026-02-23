@@ -47,7 +47,7 @@ export const useGroups = () => {
     }
   };
 
-  const createNewGroup = async (name, subject, description, semester, tags, visibility, maxMembers) => {
+  const createNewGroup = async (name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration) => {
     setLoading(true);
     setError(null);
     try {
@@ -58,7 +58,12 @@ export const useGroups = () => {
         semester,
         tags,
         visibility,
-        maxMembers
+        maxMembers,
+        meetingType,
+        location,
+        scheduleDays,
+        startTime,
+        duration
       );
       return response.data;
     } catch (err) {
@@ -69,7 +74,7 @@ export const useGroups = () => {
     }
   };
 
-  const updateExistingGroup = async (groupId, name, subject, description, semester, tags, visibility, maxMembers) => {
+  const updateExistingGroup = async (groupId, name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration) => {
     setLoading(true);
     setError(null);
     try {
@@ -81,7 +86,12 @@ export const useGroups = () => {
         semester,
         tags,
         visibility,
-        maxMembers
+        maxMembers,
+        meetingType,
+        location,
+        scheduleDays,
+        startTime,
+        duration
       );
       return response.data;
     } catch (err) {

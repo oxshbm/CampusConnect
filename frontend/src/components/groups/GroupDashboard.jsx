@@ -74,6 +74,50 @@ const GroupDashboard = ({ group }) => {
         </div>
       )}
 
+      <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 rounded-xl border border-blue-200 dark:border-blue-700">
+        <p className="text-sm font-semibold text-blue-600 dark:text-blue-300 mb-4 uppercase tracking-wide">📅 Meeting Details</p>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            {group.meetingType === 'virtual' ? (
+              <span className="text-lg">💻</span>
+            ) : (
+              <span className="text-lg">📍</span>
+            )}
+            <span className="text-zinc-700 dark:text-zinc-300">
+              {group.meetingType === 'virtual' ? 'Virtual Meeting' : 'In-Person Meeting'}
+            </span>
+          </div>
+
+          {group.meetingType === 'in-person' && group.location && (
+            <div className="flex items-center gap-3">
+              <span className="text-lg">📍</span>
+              <span className="text-zinc-700 dark:text-zinc-300">{group.location}</span>
+            </div>
+          )}
+
+          {group.scheduleDays && group.scheduleDays.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-lg">📅</span>
+              <span className="text-zinc-700 dark:text-zinc-300">{group.scheduleDays.join(', ')}</span>
+            </div>
+          )}
+
+          {group.startTime && (
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🕐</span>
+              <span className="text-zinc-700 dark:text-zinc-300">{group.startTime}</span>
+            </div>
+          )}
+
+          {group.duration && (
+            <div className="flex items-center gap-3">
+              <span className="text-lg">⏱️</span>
+              <span className="text-zinc-700 dark:text-zinc-300">{group.duration}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4 my-6 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl border border-purple-200 dark:border-purple-700">
         <div>
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">Members</p>

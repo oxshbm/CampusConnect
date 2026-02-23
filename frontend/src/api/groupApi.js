@@ -19,7 +19,7 @@ export const getGroupById = async (groupId) => {
   return response.data;
 };
 
-export const createGroup = async (name, subject, description, semester, tags, visibility, maxMembers) => {
+export const createGroup = async (name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration) => {
   const response = await axiosInstance.post('/groups', {
     name,
     subject,
@@ -28,11 +28,16 @@ export const createGroup = async (name, subject, description, semester, tags, vi
     tags,
     visibility,
     maxMembers,
+    meetingType,
+    location,
+    scheduleDays,
+    startTime,
+    duration,
   });
   return response.data;
 };
 
-export const updateGroup = async (groupId, name, subject, description, semester, tags, visibility, maxMembers) => {
+export const updateGroup = async (groupId, name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration) => {
   const response = await axiosInstance.put(`/groups/${groupId}`, {
     name,
     subject,
@@ -41,6 +46,11 @@ export const updateGroup = async (groupId, name, subject, description, semester,
     tags,
     visibility,
     maxMembers,
+    meetingType,
+    location,
+    scheduleDays,
+    startTime,
+    duration,
   });
   return response.data;
 };

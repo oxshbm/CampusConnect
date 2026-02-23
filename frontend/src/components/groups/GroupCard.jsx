@@ -29,6 +29,38 @@ const GroupCard = ({ group, onJoin }) => {
         <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-3 line-clamp-2 flex-1">{group.description}</p>
       )}
 
+      <div className="mt-4 space-y-2">
+        <div className="flex items-center gap-2 text-sm">
+          {group.meetingType === 'virtual' ? (
+            <span className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold">
+              💻 Virtual
+            </span>
+          ) : (
+            <span className="inline-block bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full text-xs font-semibold">
+              📍 In-Person
+            </span>
+          )}
+        </div>
+
+        {group.meetingType === 'in-person' && group.location && (
+          <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            📍 {group.location}
+          </div>
+        )}
+
+        {group.scheduleDays && group.scheduleDays.length > 0 && group.startTime && (
+          <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            📅 {group.scheduleDays.map(day => day.substring(0, 3)).join(', ')} at {group.startTime}
+          </div>
+        )}
+
+        {group.duration && (
+          <div className="text-sm text-zinc-600 dark:text-zinc-400">
+            ⏱️ {group.duration}
+          </div>
+        )}
+      </div>
+
       <div className="mt-4 flex flex-wrap gap-2">
         {group.tags.slice(0, 3).map((tag) => (
           <span key={tag} className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs px-3 py-1 rounded-full font-medium">

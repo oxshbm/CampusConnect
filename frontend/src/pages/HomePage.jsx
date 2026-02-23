@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGroups } from '../hooks/useGroups';
 import { useAuth } from '../hooks/useAuth';
 import GroupCard from '../components/groups/GroupCard';
+import CreateGroupModal from '../components/groups/CreateGroupModal';
 import Spinner from '../components/common/Spinner';
 
 const HomePage = () => {
@@ -10,6 +11,7 @@ const HomePage = () => {
   const [groups, setGroups] = useState([]);
   const [subject, setSubject] = useState('');
   const [tags, setTags] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const loadGroups = async () => {
     const data = await fetchPublicGroups(subject, tags);
@@ -34,13 +36,23 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-3">
-            Study Groups
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400 text-lg">Discover and join study groups that match your interests</p>
+        <div className="mb-12 flex justify-between items-start">
+          <div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-3">
+              Study Groups
+            </h1>
+            <p className="text-zinc-600 dark:text-zinc-400 text-lg">Discover and join study groups that match your interests</p>
+          </div>
+          {user && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="btn-primary bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 whitespace-nowrap"
+            >
+              ➕ Create Group
+            </button>
+          )}
         </div>
 
         <div className="card p-8 mb-12 border-l-4 border-l-purple-600 dark:border-l-purple-500">
@@ -104,6 +116,13 @@ const HomePage = () => {
           </div>
         )}
       </div>
+
+      {showModal && (
+        <CreateGroupModal
+          onClose={() => setShowModal(false)}
+          onCreated={loadGroups}
+        />
+      )}
     </div>
   );
 };

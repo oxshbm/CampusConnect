@@ -43,6 +43,28 @@ const studyGroupSchema = new mongoose.Schema(
       type: Number,
       default: 30,
     },
+    meetingType: {
+      type: String,
+      enum: ['virtual', 'in-person'],
+      default: 'virtual',
+    },
+    location: {
+      type: String,
+      default: '',
+    },
+    scheduleDays: [
+      {
+        type: String,
+      },
+    ],
+    startTime: {
+      type: String,
+      default: '',
+    },
+    duration: {
+      type: String,
+      default: '',
+    },
   },
   { timestamps: true }
 );

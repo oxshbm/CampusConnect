@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
 const GroupForm = ({ initialData, onSubmit, loading }) => {
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     subject: initialData?.subject || '',
@@ -9,14 +11,30 @@ const GroupForm = ({ initialData, onSubmit, loading }) => {
     tags: initialData?.tags?.join(', ') || '',
     visibility: initialData?.visibility || 'public',
     maxMembers: initialData?.maxMembers || '30',
+    meetingType: initialData?.meetingType || 'virtual',
+    location: initialData?.location || '',
+    scheduleDays: initialData?.scheduleDays || [],
+    startTime: initialData?.startTime || '',
+    duration: initialData?.duration || '',
   });
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value, type, checked } = e.target;
+
+    if (type === 'checkbox') {
+      setFormData((prev) => {
+        const days = prev.scheduleDays.includes(value)
+          ? prev.scheduleDays.filter((d) => d !== value)
+          : [...prev.scheduleDays, value];
+        return { ...prev, scheduleDays: days };
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -25,6 +43,11 @@ const GroupForm = ({ initialData, onSubmit, loading }) => {
 
     if (!formData.name || !formData.subject) {
       setError('Name and subject are required');
+      return;
+    }
+
+    if (formData.meetingType === 'in-person' && !formData.location) {
+      setError('Location is required for in-person meetings');
       return;
     }
 
@@ -37,6 +60,7 @@ const GroupForm = ({ initialData, onSubmit, loading }) => {
       ...formData,
       tags,
       maxMembers: parseInt(formData.maxMembers),
+      scheduleDays: formData.scheduleDays,
     });
   };
 
@@ -137,6 +161,101 @@ const GroupForm = ({ initialData, onSubmit, loading }) => {
             onChange={handleChange}
             min="1"
             max="100"
+            className="input-field"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="label">💻 Meeting Type</label>
+        <div className="flex gap-6">
+          <div className="flex items-center">
+            <input
+              type="radio"
+              id="virtual"
+              name="meetingType"
+              value="virtual"
+              checked={formData.meetingType === 'virtual'}
+              onChange={handleChange}
+              className="w-4 h-4 accent-purple-600 dark:accent-purple-400 cursor-pointer"
+            />
+            <label htmlFor="virtual" className="ml-2 cursor-pointer font-medium text-zinc-700 dark:text-zinc-300">
+              💻 Virtual
+            </label>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="radio"
+              id="in-person"
+              name="meetingType"
+              value="in-person"
+              checked={formData.meetingType === 'in-person'}
+              onChange={handleChange}
+              className="w-4 h-4 accent-purple-600 dark:accent-purple-400 cursor-pointer"
+            />
+            <label htmlFor="in-person" className="ml-2 cursor-pointer font-medium text-zinc-700 dark:text-zinc-300">
+              📍 In-Person
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {formData.meetingType === 'in-person' && (
+        <div>
+          <label className="label">📍 Location</label>
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="e.g., Building A, Room 101"
+            className="input-field"
+          />
+        </div>
+      )}
+
+      <div>
+        <label className="label">📅 Schedule (Days of Week)</label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {daysOfWeek.map((day) => (
+            <div key={day} className="flex items-center">
+              <input
+                type="checkbox"
+                id={day}
+                name="scheduleDays"
+                value={day}
+                checked={formData.scheduleDays.includes(day)}
+                onChange={handleChange}
+                className="w-4 h-4 accent-purple-600 dark:accent-purple-400 cursor-pointer"
+              />
+              <label htmlFor={day} className="ml-2 cursor-pointer text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                {day.substring(0, 3)}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="label">⏰ Start Time</label>
+          <input
+            type="time"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+            className="input-field"
+          />
+        </div>
+
+        <div>
+          <label className="label">⏱️ Duration</label>
+          <input
+            type="text"
+            name="duration"
+            value={formData.duration}
+            onChange={handleChange}
+            placeholder="e.g., 1 hour, 90 minutes"
             className="input-field"
           />
         </div>
