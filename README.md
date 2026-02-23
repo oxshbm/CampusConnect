@@ -62,7 +62,7 @@ CampusConnect/
 ## Setup Instructions
 
 ### Prerequisites
-- Node.js (v16+)
+- Node.js (v18+)
 - MongoDB (running locally or Atlas connection)
 - npm or yarn
 
