@@ -20,7 +20,12 @@ const LoginForm = () => {
       const response = await login(email, password);
       if (response.success) {
         authLogin(response.data.token, response.data.user);
-        navigate('/');
+        // Redirect to admin dashboard if user is admin, else to home
+        if (response.data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
       } else {
         setError(response.message || 'Login failed');
       }
