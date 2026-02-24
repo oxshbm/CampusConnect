@@ -9,6 +9,9 @@ import HomePage from './pages/HomePage';
 import CreateGroupPage from './pages/CreateGroupPage';
 import GroupDetailPage from './pages/GroupDetailPage';
 import ProfilePage from './pages/ProfilePage';
+import ProjectsPage from './pages/ProjectsPage';
+import CreateProjectPage from './pages/CreateProjectPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
 
 function App() {
   return (
@@ -26,6 +29,9 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/group/:id" element={<GroupDetailPage />} />
               <Route path="/create-group" element={<CreateGroupPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/create" element={<CreateProjectPage />} />
+              <Route path="/projects/:id" element={<ProjectDetailPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>

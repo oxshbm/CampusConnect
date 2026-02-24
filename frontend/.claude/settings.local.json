@@ -5,7 +5,8 @@
       "Bash(sleep 3:*)",
       "Bash(curl:*)",
       "Bash(sleep 2:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

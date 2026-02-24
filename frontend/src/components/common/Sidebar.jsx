@@ -16,13 +16,16 @@ const Sidebar = () => {
 
   const sidebarItems = [
     { label: 'Study Groups', icon: '📚', path: '/', active: true },
-    { label: 'Feature 1', icon: '🧩', path: '/feature1', active: false },
+    { label: 'Project Partner', icon: '🚀', path: '/projects', active: true },
     { label: 'Feature 2', icon: '🔧', path: '/feature2', active: false },
     { label: 'Feature 3', icon: '📊', path: '/feature3', active: false },
-    { label: 'Feature 4', icon: '🚀', path: '/feature4', active: false },
+    { label: 'Feature 4', icon: '⚡', path: '/feature4', active: false },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div
