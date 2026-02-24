@@ -1,16 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
+import ProfileDropdown from './ProfileDropdown';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const [showProfile, setShowProfile] = useState(false);
 
   return (
     <nav className="bg-gradient-to-r from-purple-700 via-purple-600 to-purple-700 dark:from-purple-900 dark:via-purple-800 dark:to-purple-900 text-white shadow-lg sticky top-0 z-50 h-16">
@@ -21,9 +19,6 @@ const Navbar = () => {
         <div className="flex gap-6 items-center">
           {user ? (
             <>
-              <div className="border-l border-purple-400 dark:border-purple-500 pl-6">
-                <span className="text-purple-100 dark:text-purple-200 text-sm">{user.name}</span>
-              </div>
               <button
                 onClick={toggleTheme}
                 className="bg-purple-500 hover:bg-purple-400 dark:bg-purple-600 dark:hover:bg-purple-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 shadow-md text-lg"
@@ -31,12 +26,29 @@ const Navbar = () => {
               >
                 {isDarkMode ? '☀️' : '🌙'}
               </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 shadow-md"
-              >
-                Logout
-              </button>
+
+              {/* Profile button */}
+              <div className="relative border-l border-purple-400 dark:border-purple-500 pl-6">
+                <button
+                  onClick={() => setShowProfile(prev => !prev)}
+                  className="flex items-center gap-2 text-white hover:text-purple-200 transition-colors"
+                >
+                  {/* Avatar circle */}
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center
+                                  font-bold text-sm text-white flex-shrink-0">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  {/* Name */}
+                  <span className="text-sm font-medium text-purple-100">{user.name}</span>
+                  {/* Chevron ▼ rotates when open */}
+                  <span className={`text-xs text-purple-300 transition-transform duration-200
+                                    ${showProfile ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+
+                {showProfile && (
+                  <ProfileDropdown onClose={() => setShowProfile(false)} />
+                )}
+              </div>
             </>
           ) : (
             <>
