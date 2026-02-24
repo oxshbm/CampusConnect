@@ -14,6 +14,14 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Testing bypass: admin mode skips all auth
+    if (loginAs === 'admin') {
+      navigate('/admin');
+      return;
+    }
+
+    // Normal student login flow
     setError('');
     setLoading(true);
 
@@ -21,12 +29,7 @@ const LoginForm = () => {
       const response = await login(email, password);
       if (response.success) {
         authLogin(response.data.token, response.data.user);
-        // Redirect based on selected login mode
-        if (loginAs === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/');
-        }
+        navigate('/');
       } else {
         setError(response.message || 'Login failed');
       }
@@ -79,7 +82,7 @@ const LoginForm = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="your@email.com"
-          required
+          required={loginAs === 'student'}
           className="input-field"
         />
       </div>
@@ -91,7 +94,7 @@ const LoginForm = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
-          required
+          required={loginAs === 'student'}
           className="input-field"
         />
       </div>
