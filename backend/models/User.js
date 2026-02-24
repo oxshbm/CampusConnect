@@ -33,6 +33,15 @@ const userSchema = new mongoose.Schema(
         ref: 'StudyGroup',
       },
     ],
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

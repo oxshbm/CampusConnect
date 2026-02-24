@@ -45,6 +45,7 @@ const signup = async (req, res) => {
           email: user.email,
           course: user.course,
           year: user.year,
+          role: user.role,
         },
       },
     });
@@ -75,6 +76,14 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
+    // Check if user is banned
+    if (user.isBanned) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been suspended. Please contact admin.',
+      });
+    }
+
     // Sign JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
@@ -90,6 +99,7 @@ const login = async (req, res) => {
           email: user.email,
           course: user.course,
           year: user.year,
+          role: user.role,
         },
       },
     });
@@ -102,6 +112,12 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate('groupsJoined');
+
+    // Check if user is banned
+    if (user.isBanned) {
+      return res.status(401).json({ success: false, message: 'Account suspended.' });
+    }
+
     res.json({
       success: true,
       data: {
@@ -111,6 +127,7 @@ const getMe = async (req, res) => {
         course: user.course,
         year: user.year,
         groupsJoined: user.groupsJoined,
+        role: user.role,
       },
     });
   } catch (error) {
