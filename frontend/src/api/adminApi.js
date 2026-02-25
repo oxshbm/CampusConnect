@@ -43,3 +43,19 @@ export const denyEvent = async (id) => {
 export const deleteAdminEvent = async (id) => {
   return axiosInstance.delete(`/admin/events/${id}`);
 };
+
+export const getAllAdminClubs = async () => {
+  return axiosInstance.get('/admin/clubs');
+};
+
+export const approveClub = async (id) => {
+  return axiosInstance.put(`/admin/clubs/${id}/approve`);
+};
+
+export const denyClub = async (id) => {
+  return axiosInstance.put(`/admin/clubs/${id}/deny`);
+};
+
+export const deleteAdminClub = async (id) => {
+  return axiosInstance.delete(`/admin/clubs/${id}`);
+};

@@ -11,6 +11,10 @@ const {
   approveEvent,
   denyEvent,
   deleteAdminEvent,
+  getAllAdminClubs,
+  approveClub,
+  denyClub,
+  deleteAdminClub,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -35,5 +39,11 @@ router.get('/events', getAllEvents);
 router.put('/events/:id/approve', approveEvent);
 router.put('/events/:id/deny', denyEvent);
 router.delete('/events/:id', deleteAdminEvent);
+
+// Clubs management
+router.get('/clubs', getAllAdminClubs);
+router.put('/clubs/:id/approve', approveClub);
+router.put('/clubs/:id/deny', denyClub);
+router.delete('/clubs/:id', deleteAdminClub);
 
 module.exports = router;

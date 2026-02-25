@@ -16,11 +16,15 @@ import CreateProjectPage from './pages/CreateProjectPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import EventsPage from './pages/EventsPage';
 import CreateEventPage from './pages/CreateEventPage';
+import ClubsPage from './pages/ClubsPage';
+import CreateClubPage from './pages/CreateClubPage';
+import ClubDetailPage from './pages/ClubDetailPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminGroups from './pages/admin/AdminGroups';
 import AdminProjects from './pages/admin/AdminProjects';
 import AdminEvents from './pages/admin/AdminEvents';
+import AdminClubs from './pages/admin/AdminClubs';
 
 function App() {
   return (
@@ -43,6 +47,9 @@ function App() {
               <Route path="/projects/:id" element={<ProjectDetailPage />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/events/create" element={<CreateEventPage />} />
+              <Route path="/clubs" element={<ClubsPage />} />
+              <Route path="/clubs/register" element={<CreateClubPage />} />
+              <Route path="/clubs/:id" element={<ClubDetailPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
@@ -55,6 +62,7 @@ function App() {
               <Route path="/admin/groups" element={<AdminGroups />} />
               <Route path="/admin/projects" element={<AdminProjects />} />
               <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/clubs" element={<AdminClubs />} />
             </Route>
           </Route>
 

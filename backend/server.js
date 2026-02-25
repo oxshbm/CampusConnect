@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const clubRoutes = require('./routes/clubRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/clubs', clubRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Global error handler

@@ -109,6 +109,16 @@ const AdminLayout = () => {
             >
               📅 Events
             </Link>
+            <Link
+              to="/admin/clubs"
+              className={`py-4 px-1 border-b-2 font-medium transition-colors ${
+                isActive('/admin/clubs')
+                  ? 'border-red-600 text-red-600 dark:text-red-500'
+                  : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              🏛️ Clubs
+            </Link>
           </div>
         </div>
       </div>

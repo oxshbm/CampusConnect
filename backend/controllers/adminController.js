@@ -1,12 +1,15 @@
 const User = require('../models/User');
 const StudyGroup = require('../models/StudyGroup');
 const Event = require('../models/Event');
+const Club = require('../models/Club');
+const ClubPost = require('../models/ClubPost');
 
 const getStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalGroups = await StudyGroup.countDocuments();
     const bannedUsers = await User.countDocuments({ isBanned: true });
+    const totalClubs = await Club.countDocuments({ status: 'approved' });
 
     res.json({
       success: true,
@@ -14,6 +17,7 @@ const getStats = async (req, res) => {
         totalUsers,
         totalGroups,
         bannedUsers,
+        totalClubs,
       },
     });
   } catch (error) {
@@ -272,6 +276,86 @@ const deleteAdminEvent = async (req, res) => {
   }
 };
 
+const getAllAdminClubs = async (req, res) => {
+  try {
+    const clubs = await Club.find()
+      .populate('createdBy', 'name email')
+      .sort('-createdAt');
+
+    res.json({ success: true, data: clubs });
+  } catch (error) {
+    console.error('GetAllAdminClubs error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch clubs' });
+  }
+};
+
+const approveClub = async (req, res) => {
+  try {
+    const club = await Club.findByIdAndUpdate(
+      req.params.id,
+      { status: 'approved' },
+      { new: true }
+    ).populate('createdBy', 'name email');
+
+    if (!club) {
+      return res.status(404).json({ success: false, message: 'Club not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Club "${club.name}" has been approved.`,
+      data: club,
+    });
+  } catch (error) {
+    console.error('ApproveClub error:', error);
+    res.status(500).json({ success: false, message: 'Failed to approve club' });
+  }
+};
+
+const denyClub = async (req, res) => {
+  try {
+    const club = await Club.findByIdAndUpdate(
+      req.params.id,
+      { status: 'denied' },
+      { new: true }
+    ).populate('createdBy', 'name email');
+
+    if (!club) {
+      return res.status(404).json({ success: false, message: 'Club not found' });
+    }
+
+    res.json({
+      success: true,
+      message: `Club "${club.name}" has been denied.`,
+      data: club,
+    });
+  } catch (error) {
+    console.error('DenyClub error:', error);
+    res.status(500).json({ success: false, message: 'Failed to deny club' });
+  }
+};
+
+const deleteAdminClub = async (req, res) => {
+  try {
+    const club = await Club.findById(req.params.id);
+    if (!club) {
+      return res.status(404).json({ success: false, message: 'Club not found' });
+    }
+
+    // Cascade delete all posts for this club
+    await ClubPost.deleteMany({ club: req.params.id });
+    await Club.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: `Club "${club.name}" has been deleted.`,
+    });
+  } catch (error) {
+    console.error('DeleteAdminClub error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete club' });
+  }
+};
+
 module.exports = {
   getStats,
   getAllUsers,
@@ -284,4 +368,8 @@ module.exports = {
   approveEvent,
   denyEvent,
   deleteAdminEvent,
+  getAllAdminClubs,
+  approveClub,
+  denyClub,
+  deleteAdminClub,
 };
