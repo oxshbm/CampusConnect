@@ -46,7 +46,7 @@ export default function ClubDetailPage() {
   const [postFormError, setPostFormError] = useState('');
   const [postFormLoading, setPostFormLoading] = useState(false);
 
-  const isLeader = user && club && club.createdBy._id === user.id;
+  const isLeader = user && club && (club.createdBy._id === user.id || club.createdBy._id === user._id);
 
   // Load club and posts
   useEffect(() => {

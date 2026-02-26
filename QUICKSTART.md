@@ -21,7 +21,7 @@ Or update `MONGODB_URI` in `backend/.env` to use MongoDB Atlas.
 ```bash
 npm run dev
 ```
-You should see:
+You should                                
 ```
 MongoDB connected: localhost
 Server running on port 5000

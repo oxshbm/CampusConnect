@@ -1,4 +1,6 @@
 const express = require('express');
+const authMiddleware = require('../middleware/authMiddleware');
+const adminOnly = require('../middleware/adminMiddleware');
 const {
   getStats,
   getAllUsers,
@@ -19,7 +21,8 @@ const {
 
 const router = express.Router();
 
-// Testing: no auth required for now. Auth will be added back later.
+// Apply authentication and admin role check to all admin routes
+router.use(authMiddleware, adminOnly);
 
 // Stats
 router.get('/stats', getStats);
