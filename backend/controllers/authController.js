@@ -162,4 +162,71 @@ const updateMe = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getMe, updateMe };
+const signupAlumni = async (req, res) => {
+  try {
+    const { name, email, password, passingYear, currentStatus, currentCompany, jobTitle, location, linkedIn, bio } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password || !passingYear || !currentStatus) {
+      return res.status(400).json({ success: false, message: 'Missing required fields: name, email, password, passingYear, currentStatus' });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create alumni user
+    const user = new User({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role: 'alumni',
+      passingYear,
+      currentStatus,
+      currentCompany: currentCompany || undefined,
+      jobTitle: jobTitle || undefined,
+      location: location || undefined,
+      linkedIn: linkedIn || undefined,
+      bio: bio || undefined,
+      // Alumni don't have course/year (student fields)
+      course: 'Alumni',
+      year: 0,
+    });
+    await user.save();
+
+    // Sign JWT
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          passingYear: user.passingYear,
+          currentStatus: user.currentStatus,
+          currentCompany: user.currentCompany,
+          jobTitle: user.jobTitle,
+          location: user.location,
+          linkedIn: user.linkedIn,
+          bio: user.bio,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Alumni signup error:', error);
+    res.status(500).json({ success: false, message: 'Alumni signup failed' });
+  }
+};
+
+module.exports = { signup, login, getMe, updateMe, signupAlumni };

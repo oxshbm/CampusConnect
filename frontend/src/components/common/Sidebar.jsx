@@ -19,7 +19,7 @@ const Sidebar = () => {
     { label: 'Project Partner', icon: '🚀', path: '/projects', active: true },
     { label: 'Events Calendar', icon: '📅', path: '/events', active: true },
     { label: 'College Clubs', icon: '🏛️', path: '/clubs', active: true },
-    { label: 'Feature 3', icon: '📊', path: '/feature3', active: false },
+    { label: 'Alumni Connect', icon: '🎓', path: '/alumni', active: true },
     { label: 'Feature 4', icon: '⚡', path: '/feature4', active: false },
   ];
 

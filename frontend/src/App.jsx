@@ -3,10 +3,13 @@ import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/common/Navbar';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
+import AlumniRoute from './components/common/AlumniRoute';
 import AppLayout from './components/common/AppLayout';
 import AdminLayout from './components/admin/AdminLayout';
+import AlumniLayout from './components/alumni/AlumniLayout';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import AlumniSignupPage from './pages/AlumniSignupPage';
 import HomePage from './pages/HomePage';
 import CreateGroupPage from './pages/CreateGroupPage';
 import GroupDetailPage from './pages/GroupDetailPage';
@@ -19,12 +22,18 @@ import CreateEventPage from './pages/CreateEventPage';
 import ClubsPage from './pages/ClubsPage';
 import CreateClubPage from './pages/CreateClubPage';
 import ClubDetailPage from './pages/ClubDetailPage';
+import AlumniConnectPage from './pages/AlumniConnectPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminGroups from './pages/admin/AdminGroups';
 import AdminProjects from './pages/admin/AdminProjects';
 import AdminEvents from './pages/admin/AdminEvents';
 import AdminClubs from './pages/admin/AdminClubs';
+import AlumniDashboard from './pages/alumni/AlumniDashboard';
+import AlumniProfilePage from './pages/alumni/AlumniProfilePage';
+import AlumniEventsPage from './pages/alumni/AlumniEventsPage';
+import AlumniClubsPage from './pages/alumni/AlumniClubsPage';
+import AlumniConnectionsPage from './pages/alumni/AlumniConnectionsPage';
 
 function App() {
   return (
@@ -35,6 +44,7 @@ function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signup-alumni" element={<AlumniSignupPage />} />
 
           {/* Protected routes with sidebar layout */}
           <Route element={<ProtectedRoute />}>
@@ -50,6 +60,7 @@ function App() {
               <Route path="/clubs" element={<ClubsPage />} />
               <Route path="/clubs/register" element={<CreateClubPage />} />
               <Route path="/clubs/:id" element={<ClubDetailPage />} />
+              <Route path="/alumni" element={<AlumniConnectPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
@@ -63,6 +74,17 @@ function App() {
               <Route path="/admin/projects" element={<AdminProjects />} />
               <Route path="/admin/events" element={<AdminEvents />} />
               <Route path="/admin/clubs" element={<AdminClubs />} />
+            </Route>
+          </Route>
+
+          {/* Alumni portal routes */}
+          <Route element={<AlumniRoute />}>
+            <Route element={<AlumniLayout />}>
+              <Route path="/alumni-portal" element={<AlumniDashboard />} />
+              <Route path="/alumni-portal/profile" element={<AlumniProfilePage />} />
+              <Route path="/alumni-portal/events" element={<AlumniEventsPage />} />
+              <Route path="/alumni-portal/clubs" element={<AlumniClubsPage />} />
+              <Route path="/alumni-portal/connections" element={<AlumniConnectionsPage />} />
             </Route>
           </Route>
 

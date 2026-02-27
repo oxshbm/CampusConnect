@@ -32,3 +32,8 @@ export const updateMe = async (name, course, year) => {
   });
   return response.data;
 };
+
+export const signupAlumni = async (data) => {
+  const response = await axiosInstance.post('/auth/signup-alumni', data);
+  return response.data;
+};

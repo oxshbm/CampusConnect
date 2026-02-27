@@ -13,11 +13,17 @@ const SignupPage = () => {
             <p className="text-center text-zinc-600 dark:text-zinc-400 mt-2">Create your CampusConnect account</p>
           </div>
           <SignupForm />
-          <div className="border-t border-zinc-200 dark:border-zinc-700 mt-6 pt-6">
+          <div className="border-t border-zinc-200 dark:border-zinc-700 mt-6 pt-6 space-y-4">
             <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
               Already have an account?{' '}
               <Link to="/login" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">
                 Login here
+              </Link>
+            </p>
+            <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+              Are you an alumni?{' '}
+              <Link to="/signup-alumni" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold">
+                Register as Alumni
               </Link>
             </p>
           </div>

@@ -8,6 +8,8 @@ const groupRoutes = require('./routes/groupRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const clubRoutes = require('./routes/clubRoutes');
+const alumniRoutes = require('./routes/alumniRoutes');
+const connectionRoutes = require('./routes/connectionRoutes');
 
 const app = express();
 
@@ -29,6 +31,8 @@ app.use('/api/groups', groupRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/alumni', alumniRoutes);
+app.use('/api/connections', connectionRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

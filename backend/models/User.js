@@ -35,12 +35,36 @@ const userSchema = new mongoose.Schema(
     ],
     role: {
       type: String,
-      enum: ['user', 'admin'],
+      enum: ['user', 'admin', 'alumni'],
       default: 'user',
     },
     isBanned: {
       type: Boolean,
       default: false,
+    },
+    // Alumni-specific fields
+    passingYear: {
+      type: Number,
+    },
+    currentStatus: {
+      type: String,
+      enum: ['employed', 'self-employed', 'masters', 'phd', 'other'],
+    },
+    currentCompany: {
+      type: String,
+    },
+    jobTitle: {
+      type: String,
+    },
+    location: {
+      type: String,
+    },
+    linkedIn: {
+      type: String,
+    },
+    bio: {
+      type: String,
+      maxlength: 500,
     },
   },
   { timestamps: true }
