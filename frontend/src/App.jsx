@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
-import Navbar from './components/common/Navbar';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
 import AlumniRoute from './components/common/AlumniRoute';
@@ -39,7 +38,6 @@ function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <Navbar />
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
