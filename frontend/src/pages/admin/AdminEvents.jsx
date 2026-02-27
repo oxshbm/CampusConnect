@@ -131,7 +131,7 @@ const AdminEvents = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-2">Events Management</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-2">Events Management</h1>
         <p className="text-zinc-600 dark:text-zinc-400">Review and manage event submissions</p>
       </div>
 
@@ -191,28 +191,28 @@ const AdminEvents = () => {
               ) : (
                 filteredEvents.map((event) => (
                   <tr key={event._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-medium text-zinc-900 dark:text-white">
                       {event.title}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       <span className="inline-block px-2 py-1 bg-zinc-200 dark:bg-zinc-700 rounded text-xs">
                         {event.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {event.createdBy?.name || 'Unknown'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {new Date(event.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       {getStatusBadge(event.status)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       👥 {event.attendees?.length || 0}
                       {event.maxAttendees ? ` / ${event.maxAttendees}` : ''}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       <div className="flex gap-2 flex-wrap">
                         {event.status === 'pending' && (
                           <>

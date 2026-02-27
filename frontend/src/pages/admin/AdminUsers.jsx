@@ -108,7 +108,7 @@ const AdminUsers = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-2">Users Management</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-2">Users Management</h1>
         <p className="text-zinc-600 dark:text-zinc-400">Monitor and manage student accounts</p>
       </div>
 
@@ -168,22 +168,22 @@ const AdminUsers = () => {
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-medium text-zinc-900 dark:text-white">
                       {user.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {user.email}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {user.course}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {user.year}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {user.groupsJoinedCount}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           user.isBanned
@@ -194,7 +194,7 @@ const AdminUsers = () => {
                         {user.isBanned ? '🚫 Banned' : '✅ Active'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       <div className="flex gap-2 flex-wrap">
                         {user.isBanned ? (
                           <button

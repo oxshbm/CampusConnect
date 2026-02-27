@@ -32,7 +32,7 @@ const ProfileDropdown = ({ onClose }) => {
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-zinc-900
+      className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white dark:bg-zinc-900
                  rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700
                  z-[60] overflow-hidden"
     >

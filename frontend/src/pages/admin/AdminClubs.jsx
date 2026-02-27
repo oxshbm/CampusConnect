@@ -136,7 +136,7 @@ export default function AdminClubs() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-2">
+        <h1 className="text-2xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-2">
           Clubs Management
         </h1>
         <p className="text-zinc-600 dark:text-zinc-400">Review and manage club submissions</p>
@@ -204,25 +204,25 @@ export default function AdminClubs() {
                     key={club._id}
                     className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
                   >
-                    <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-medium text-zinc-900 dark:text-white">
                       {club.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       <span className="inline-block px-2 py-1 bg-zinc-200 dark:bg-zinc-700 rounded text-xs">
                         {club.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {club.createdBy?.name || 'Unknown'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {club.teamSize}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       👥 {club.members?.length || 0}
                     </td>
-                    <td className="px-6 py-4">{getStatusBadge(club.status)}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">{getStatusBadge(club.status)}</td>
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       <div className="flex gap-2 flex-wrap">
                         {club.status === 'pending' && (
                           <>

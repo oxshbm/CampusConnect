@@ -156,7 +156,7 @@ export default function ClubDetailPage() {
 
   if (!club) {
     return (
-      <div className="card p-8 text-center">
+      <div className="card p-4 md:p-8 text-center">
         <p className="text-zinc-600 dark:text-zinc-400">Club not found</p>
       </div>
     );
@@ -165,7 +165,7 @@ export default function ClubDetailPage() {
   return (
     <div className="space-y-8">
       {/* Club Info Card */}
-      <div className="card p-8 border-l-4 border-l-purple-600 dark:border-l-purple-400">
+      <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-400">
         {!isEditing ? (
           <>
             {/* Status Banners */}
@@ -447,7 +447,7 @@ export default function ClubDetailPage() {
               ))}
             </div>
           ) : (
-            <div className="card p-8 text-center">
+            <div className="card p-4 md:p-8 text-center">
               <p className="text-zinc-600 dark:text-zinc-400">
                 No posts yet. {isLeader ? 'Create the first post!' : 'Check back later for updates.'}
               </p>

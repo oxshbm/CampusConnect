@@ -77,7 +77,7 @@ const AlumniClubsPage = () => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-blue-50 dark:from-zinc-950 dark:to-zinc-900 min-h-screen py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-blue-50 dark:from-zinc-950 dark:to-zinc-900 min-h-screen py-6 md:py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-400 dark:to-blue-500 bg-clip-text text-transparent mb-2">
           College Clubs
@@ -91,7 +91,7 @@ const AlumniClubsPage = () => {
         )}
 
         {/* Filter Card */}
-        <div className="card p-8 mb-12 border-l-4 border-l-blue-600">
+        <div className="card p-4 md:p-8 mb-12 border-l-4 border-l-blue-600">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label">Search Clubs</label>

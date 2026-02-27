@@ -110,7 +110,7 @@ const ProjectDetailPage = () => {
   const pendingApplicationCount = applications.filter((a) => a.status === 'pending').length;
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>
@@ -173,7 +173,7 @@ const ProjectDetailPage = () => {
             )}
           </>
         ) : (
-          <div className="card p-8">
+          <div className="card p-4 md:p-8">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-6">
               ✏️ Edit Project
             </h2>

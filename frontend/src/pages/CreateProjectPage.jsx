@@ -23,7 +23,7 @@ const CreateProjectPage = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent">
@@ -33,7 +33,7 @@ const CreateProjectPage = () => {
             Share your project idea and find talented teammates to build it
           </p>
         </div>
-        <div className="card p-8">
+        <div className="card p-4 md:p-8">
           <ProjectForm initialData={null} onSubmit={handleSubmit} loading={loading} />
         </div>
       </div>

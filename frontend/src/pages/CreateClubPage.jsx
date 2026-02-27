@@ -55,7 +55,7 @@ export default function CreateClubPage() {
       )}
 
       {/* Form Card */}
-      <div className="card p-8">
+      <div className="card p-4 md:p-8">
         <ClubForm initialData={null} onSubmit={handleSubmit} loading={loading} />
       </div>
     </div>

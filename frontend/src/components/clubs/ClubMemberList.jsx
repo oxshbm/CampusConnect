@@ -1,6 +1,6 @@
 export default function ClubMemberList({ members, isLeader, onRemove, currentUserId }) {
   return (
-    <div className="card p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+    <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
       <div className="flex items-center gap-2 mb-6">
         <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">👥 Club Members</h2>
         <span className="bg-purple-600 dark:bg-purple-700 text-white text-sm font-bold px-3 py-1 rounded-full">

@@ -34,10 +34,10 @@ const GroupDashboard = ({ group }) => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="card p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
-      <div className="flex justify-between items-start mb-6">
+    <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
         <div>
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-white">{group.name}</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-zinc-900 dark:text-white">{group.name}</h1>
           <p className="text-purple-600 dark:text-purple-400 text-lg mt-2 font-semibold">📚 {group.subject}</p>
         </div>
         <div className="text-right">
@@ -121,11 +121,11 @@ const GroupDashboard = ({ group }) => {
       <div className="grid grid-cols-2 gap-4 my-6 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl border border-purple-200 dark:border-purple-700">
         <div>
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">Members</p>
-          <p className="text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{group.members.length}</p>
+          <p className="text-2xl md:text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{group.members.length}</p>
         </div>
         <div>
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">Max Capacity</p>
-          <p className="text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{group.maxMembers}</p>
+          <p className="text-2xl md:text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{group.maxMembers}</p>
         </div>
       </div>
 

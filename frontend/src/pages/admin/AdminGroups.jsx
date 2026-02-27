@@ -72,7 +72,7 @@ const AdminGroups = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-2">
+        <h1 className="text-2xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-2">
           Groups Management
         </h1>
         <p className="text-zinc-600 dark:text-zinc-400">Monitor and moderate study groups</p>
@@ -134,22 +134,22 @@ const AdminGroups = () => {
               ) : (
                 filteredGroups.map((group) => (
                   <tr key={group.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-zinc-900 dark:text-white">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm font-medium text-zinc-900 dark:text-white">
                       {group.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {group.subject}
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       <div>
                         <p className="font-medium text-zinc-900 dark:text-white">{group.createdBy.name}</p>
                         <p className="text-xs text-zinc-500">{group.createdBy.email}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {group.membersCount} / {group.maxMembers}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           group.visibility === 'public'
@@ -160,10 +160,10 @@ const AdminGroups = () => {
                         {group.visibility === 'public' ? '🌐 Public' : '🔒 Private'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                    <td className="px-3 md:px-6 py-3 md:py-4 text-sm text-zinc-600 dark:text-zinc-400">
                       {new Date(group.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-3 md:py-4">
                       <button
                         onClick={() => handleDeleteGroup(group.id, group.name)}
                         disabled={actionLoading === group.id}

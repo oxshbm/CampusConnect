@@ -5,7 +5,7 @@ const AlumniSignupPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        <div className="card p-8 md:p-10">
+        <div className="card p-4 md:p-8 md:p-10">
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent text-center">
               Join as Alumni

@@ -85,7 +85,7 @@ const AlumniProfilePage = () => {
           </div>
         )}
 
-        <div className="card p-8">
+        <div className="card p-4 md:p-8">
           {!isEditing ? (
             // View Mode
             <div>

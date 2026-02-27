@@ -74,10 +74,10 @@ const ProjectDashboard = ({ project, onStatusChange, onApply }) => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="card p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
-      <div className="flex justify-between items-start mb-6">
+    <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
         <div>
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-white">{project.title}</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-zinc-900 dark:text-white">{project.title}</h1>
         </div>
         <div className="text-right">
           <span className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${getStatusBadgeClass()}`}>
@@ -137,7 +137,7 @@ const ProjectDashboard = ({ project, onStatusChange, onApply }) => {
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">
             Current Members
           </p>
-          <p className="text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">
+          <p className="text-2xl md:text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">
             {project.members ? project.members.length : 0}
           </p>
         </div>
@@ -145,7 +145,7 @@ const ProjectDashboard = ({ project, onStatusChange, onApply }) => {
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">
             Team Capacity
           </p>
-          <p className="text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{project.maxMembers}</p>
+          <p className="text-2xl md:text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{project.maxMembers}</p>
         </div>
       </div>
 

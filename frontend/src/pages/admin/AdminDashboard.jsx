@@ -54,7 +54,7 @@ const AdminDashboard = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Users Card */}
-        <div className="card p-8">
+        <div className="card p-4 md:p-8">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-400 text-sm font-medium mb-1">
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Groups Card */}
-        <div className="card p-8">
+        <div className="card p-4 md:p-8">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-400 text-sm font-medium mb-1">
@@ -88,7 +88,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Banned Users Card */}
-        <div className="card p-8">
+        <div className="card p-4 md:p-8">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-zinc-600 dark:text-zinc-400 text-sm font-medium mb-1">
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="card p-8">
+      <div className="card p-4 md:p-8">
         <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a

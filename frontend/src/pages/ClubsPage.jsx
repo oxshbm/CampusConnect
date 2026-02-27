@@ -105,7 +105,7 @@ export default function ClubsPage() {
           ))}
         </div>
       ) : (
-        <div className="card p-8 text-center">
+        <div className="card p-4 md:p-8 text-center">
           <p className="text-zinc-600 dark:text-zinc-400">
             {clubs.length === 0
               ? 'No clubs found. Be the first to register one!'

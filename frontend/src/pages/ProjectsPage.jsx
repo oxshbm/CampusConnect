@@ -36,11 +36,11 @@ const ProjectsPage = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-6 md:py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-12 flex justify-between items-start">
+        <div className="mb-8 md:mb-12 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-3">
+            <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-3">
               Project Partner
             </h1>
             <p className="text-zinc-600 dark:text-zinc-400 text-lg">
@@ -50,14 +50,14 @@ const ProjectsPage = () => {
           {user && (
             <button
               onClick={() => setShowModal(true)}
-              className="btn-primary bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 whitespace-nowrap"
+              className="btn-primary bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700"
             >
               🚀 Post a Project
             </button>
           )}
         </div>
 
-        <div className="card p-8 mb-12 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+        <div className="card p-4 md:p-8 mb-12 border-l-4 border-l-purple-600 dark:border-l-purple-500">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">🔍 Search Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>

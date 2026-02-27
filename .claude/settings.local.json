@@ -10,7 +10,9 @@
       "Bash(mongod:*)",
       "Bash(/home/shubham/Desktop/CampusConnect/IMPLEMENTATION_SUMMARY.md:*)",
       "Bash(/home/shubham/Desktop/CampusConnect/QUICK_START.md:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(find .:*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

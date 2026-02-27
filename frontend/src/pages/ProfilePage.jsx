@@ -39,7 +39,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent">
@@ -59,7 +59,7 @@ const ProfilePage = () => {
         )}
 
         {!isEditing ? (
-          <div className="card p-8 space-y-6">
+          <div className="card p-4 md:p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">Name</p>
@@ -95,7 +95,7 @@ const ProfilePage = () => {
             </button>
           </div>
         ) : (
-          <div className="card p-8">
+          <div className="card p-4 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="label">Full Name</label>
