@@ -18,25 +18,13 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const response = await login(email, password);
+      const response = await login(email, password, loginAs);
       if (response.success) {
-        // Check if selected mode matches actual role
-        if (loginAs === 'admin' && response.data.user.role !== 'admin') {
-          setError('This account does not have admin privileges');
-          setLoading(false);
-          return;
-        }
-        if (loginAs === 'alumni' && response.data.user.role !== 'alumni') {
-          setError('This account does not have alumni privileges');
-          setLoading(false);
-          return;
-        }
-
         authLogin(response.data.token, response.data.user);
         // Role-based redirect
-        if (response.data.user.role === 'admin') {
+        if (loginAs === 'admin') {
           navigate('/admin');
-        } else if (response.data.user.role === 'alumni') {
+        } else if (loginAs === 'alumni') {
           navigate('/alumni-portal');
         } else {
           navigate('/');

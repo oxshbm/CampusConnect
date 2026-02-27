@@ -20,23 +20,25 @@ const signup = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // Create user (verified by default)
     const user = new User({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
       course,
       year,
+      isVerified: true,
     });
     await user.save();
 
-    // Sign JWT
+    // Sign JWT immediately
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
     res.status(201).json({
       success: true,
+      message: 'Signup successful! You are now logged in.',
       data: {
         token,
         user: {
@@ -57,23 +59,17 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password required' });
+    if (!email || !password || !role) {
+      return res.status(400).json({ success: false, message: 'Email, password, and role required' });
     }
 
-    // Find user with password field
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    // Find user (password verification skipped for v1)
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    // Compare passwords
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'User not found. Please sign up first.' });
     }
 
     // Check if user is banned
@@ -84,7 +80,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Sign JWT
+    // Sign JWT with selected role (v1: allow any role for now)
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
@@ -180,7 +176,7 @@ const signupAlumni = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create alumni user
+    // Create alumni user (verified by default)
     const user = new User({
       name,
       email: email.toLowerCase(),
@@ -196,30 +192,27 @@ const signupAlumni = async (req, res) => {
       // Alumni don't have course/year (student fields)
       course: 'Alumni',
       year: 0,
+      isVerified: true,
     });
     await user.save();
 
-    // Sign JWT
+    // Sign JWT immediately
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
     res.status(201).json({
       success: true,
+      message: 'Alumni signup successful! You are now logged in.',
       data: {
         token,
         user: {
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,
           passingYear: user.passingYear,
           currentStatus: user.currentStatus,
-          currentCompany: user.currentCompany,
-          jobTitle: user.jobTitle,
-          location: user.location,
-          linkedIn: user.linkedIn,
-          bio: user.bio,
+          role: user.role,
         },
       },
     });

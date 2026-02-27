@@ -11,10 +11,11 @@ export const signup = async (name, email, password, course, year) => {
   return response.data;
 };
 
-export const login = async (email, password) => {
+export const login = async (email, password, role = 'user') => {
   const response = await axiosInstance.post('/auth/login', {
     email,
     password,
+    role,
   });
   return response.data;
 };

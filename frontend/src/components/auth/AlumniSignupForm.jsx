@@ -28,7 +28,7 @@ const AlumniSignupForm = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -47,6 +47,7 @@ const AlumniSignupForm = () => {
         bio: formData.bio || undefined,
       });
       if (response.success) {
+        // User is now logged in directly, no OTP verification needed
         login(response.data.token, response.data.user);
         navigate('/alumni-portal');
       } else {
@@ -60,7 +61,7 @@ const AlumniSignupForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSignupSubmit} className="space-y-5">
       {error && (
         <div className="p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 rounded-lg flex items-start gap-3">
           <span className="text-lg">⚠️</span>

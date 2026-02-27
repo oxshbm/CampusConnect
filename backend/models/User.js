@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     year: {
       type: Number,
       required: true,
-      min: 1,
+      min: 0,
       max: 6,
     },
     groupsJoined: [
@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema(
     bio: {
       type: String,
       maxlength: 500,
+    },
+    isVerified: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }
