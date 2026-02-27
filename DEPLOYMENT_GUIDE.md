@@ -14,10 +14,10 @@ Complete guide to deploy CampusConnect for free using:
 ### 1.1 Environment Variables
 
 You'll need to set up the following environment variables:
-- `MONGODB_URI`: Your MongoDB connection string
-- `JWT_SECRET`: A random 32+ character secret key for JWT signing
+- `MONGODB_URI`: Your MongoDB connection string       // mongodb+srv://shubhamavhad0123:SNavhad@251021>@campustest01.xr3ttdt.mongodb.net/?appName=campustest01
+- `JWT_SECRET`: A random 32+ character secret key for JWT signing   //9f565d5b03ebb7ad3f238ec2284eab3151fbb0451790d0eb7b9f5c71bc4b47ae
 - `PORT`: Backend port (default: 5000)
-- `CLIENT_URL`: Your frontend URL (updated after frontend deployment)
+- `CLIENT_URL`: Your frontend URL (updated after frontend deployment)    https://campus-connect-five-zeta.vercel.app/login
 
 ---
 

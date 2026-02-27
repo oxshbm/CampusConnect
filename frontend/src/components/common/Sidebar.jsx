@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen = false, onCloseMobile = () => {} }) => {
   const [isOpen, setIsOpen] = useState(() => {
     return localStorage.getItem('sidebarOpen') !== 'false';
   });
@@ -29,17 +29,30 @@ const Sidebar = () => {
   };
 
   return (
-    <div
-      className={`
-        bg-white dark:bg-zinc-900
-        border-r border-zinc-200 dark:border-zinc-800
-        flex flex-col
-        transition-all duration-300
-        ${isOpen ? 'w-64' : 'w-16'}
-        min-h-screen
-        sticky left-0 top-16
-      `}
-    >
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={onCloseMobile}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`
+          bg-white dark:bg-zinc-900
+          border-r border-zinc-200 dark:border-zinc-800
+          flex flex-col
+          transition-all duration-300
+          hidden md:flex
+          ${isOpen ? 'w-64' : 'w-16'}
+          h-screen
+          sticky left-0 top-16
+          md:relative md:top-0
+          ${mobileOpen ? 'fixed left-0 top-16 z-50 h-[calc(100vh-4rem)]' : ''}
+        `}
+      >
       {/* Sidebar items container */}
       <nav className="flex-1 py-6 px-0">
         <ul className="space-y-2">
@@ -49,6 +62,7 @@ const Sidebar = () => {
                 // Active feature - clickable
                 <Link
                   to={item.path}
+                  onClick={onCloseMobile}
                   className={`
                     flex items-center gap-4 px-4 py-3 mx-2
                     rounded-lg transition-all duration-200
@@ -103,7 +117,8 @@ const Sidebar = () => {
           </span>
         </button>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
