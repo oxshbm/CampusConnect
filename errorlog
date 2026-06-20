@@ -1,0 +1,235 @@
+# CampusConnect Backend Error Log
+
+Date investigated: 2026-06-19
+
+## Implementation update
+
+The project was repaired after this investigation:
+
+- Local development now uses `mongodb://127.0.0.1:27017/campusconnect`.
+- Backend startup validates required configuration and waits for MongoDB.
+- Database connection errors are handled by the startup function.
+- A health endpoint is available at `GET /api/health`.
+- The unused, broken email service was removed. Email verification is not part of
+  the current authentication flow; new users are explicitly verified on signup.
+
+MongoDB itself must be running before `npm run dev` can start the API.
+
+## Summary
+
+`nodemon` is reporting the crash, but it is not the root cause. Nodemon starts
+`node server.js`; when that Node process exits because of a port, database, or
+startup error, nodemon prints `app crashed - waiting for file changes`.
+
+## 1. Port 5000 cannot be bound
+
+Status: Reproduced during investigation.
+
+Observed error:
+
+```text
+Error: listen EPERM: operation not permitted 0.0.0.0:5000
+[nodemon] app crashed - waiting for file changes before starting...
+```
+
+The test environment does not permit opening a listening socket, so it reports
+`EPERM`. On a development machine, starting a second backend while the first is
+still running normally produces the closely related error `EADDRINUSE: address
+already in use :::5000`.
+
+### Optimal solution
+
+Run only one backend instance on port 5000. Check which process owns the port:
+
+```bash
+ss -ltnp | grep ':5000'
+# or
+lsof -i :5000
+```
+
+Stop the old process with `Ctrl+C` in its terminal. If necessary, use the PID
+shown by the command:
+
+```bash
+kill <PID>
+```
+
+Alternatively, choose another port in `backend/.env` and update the frontend API
+URL to match:
+
+```dotenv
+# backend/.env
+PORT=5001
+
+# frontend/.env
+VITE_API_URL=http://localhost:5001/api
+```
+
+Restart both applications after changing environment files.
+
+## 2. MongoDB URI contains placeholder values
+
+Status: Confirmed from a redacted configuration check.
+
+`backend/.env` has a syntactically valid MongoDB URI, but it still contains the
+placeholder host/password values copied from `.env.example`. A direct database
+connection test did not complete within 50 seconds. The backend will therefore
+fail to connect and `config/db.js` calls `process.exit(1)`, which nodemon reports
+as a crash.
+
+### Optimal solution
+
+Use one of these real database configurations.
+
+For local MongoDB:
+
+```dotenv
+MONGODB_URI=mongodb://127.0.0.1:27017/campusconnect
+```
+
+Ensure MongoDB is running, then verify it:
+
+```bash
+mongosh "mongodb://127.0.0.1:27017/campusconnect"
+```
+
+For MongoDB Atlas, replace the username, password, cluster hostname, and database
+with the values from Atlas. URL-encode special characters in the password. Also
+add the development machine's IP address under Atlas Network Access and confirm
+that the database user has permission for the database.
+
+Verify the configured connection without displaying the secret:
+
+```bash
+cd backend
+node -e "require('dotenv').config(); const m=require('mongoose'); m.connect(process.env.MONGODB_URI,{serverSelectionTimeoutMS:10000}).then(()=>{console.log('MongoDB OK'); return m.disconnect()}).catch(e=>{console.error(e.message); process.exit(1)})"
+```
+
+Never commit `backend/.env`; it is already covered by `backend/.gitignore`.
+
+## 3. HTTP server starts before the database connection is ready
+
+Status: Confirmed in `backend/server.js`.
+
+`connectDB()` is asynchronous but is called without `await`. The code immediately
+calls `app.listen()`. This can briefly print `Server running` even when MongoDB is
+unavailable, after which `config/db.js` exits the process. It makes startup logs
+misleading and can allow requests before the database is ready.
+
+### Optimal solution
+
+Start the listener only after MongoDB connects, and handle startup failure once:
+
+```js
+const startServer = async () => {
+  try {
+    await connectDB();
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+    server.on('error', (error) => {
+      console.error(`Server startup failed: ${error.message}`);
+      process.exit(1);
+    });
+  } catch (error) {
+    console.error(`Backend startup failed: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+startServer();
+```
+
+For clean error ownership, `connectDB()` should throw its error instead of calling
+`process.exit(1)` itself. The startup function should decide whether to exit.
+
+## 4. Required environment variables are not validated at startup
+
+Status: Confirmed in the source.
+
+The backend directly reads `MONGODB_URI`, `JWT_SECRET`, and `CLIENT_URL`. Missing or
+invalid values fail later with less useful Mongoose, JWT, or CORS errors. The
+current JWT secret is set and at least 32 characters, but startup validation is
+still needed to prevent future configuration mistakes.
+
+### Optimal solution
+
+Validate configuration before connecting to MongoDB:
+
+```js
+const requiredEnv = ['MONGODB_URI', 'JWT_SECRET', 'CLIENT_URL'];
+const missingEnv = requiredEnv.filter((name) => !process.env[name]);
+
+if (missingEnv.length) {
+  throw new Error(`Missing environment variables: ${missingEnv.join(', ')}`);
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET must contain at least 32 characters');
+}
+```
+
+Keep local development values similar to:
+
+```dotenv
+PORT=5000
+MONGODB_URI=mongodb://127.0.0.1:27017/campusconnect
+JWT_SECRET=<a-random-secret-of-at-least-32-characters>
+CLIENT_URL=http://localhost:5173
+```
+
+## 5. Email service had a missing dependency and missing configuration
+
+Status: Resolved by removing the unused email service. It was not imported by any
+active route, and the current signup flow does not send verification emails.
+
+Loading `backend/utils/emailService.js` produces:
+
+```text
+MODULE_NOT_FOUND: Cannot find module 'nodemailer'
+```
+
+`nodemailer` is absent from `backend/package.json`, and `GMAIL_USER` and
+`GMAIL_APP_PASSWORD` are absent from both the current `.env` and `.env.example`.
+This will crash as soon as the service is connected to an authentication route.
+
+### Optimal solution
+
+If email verification is required, install and document the dependency:
+
+```bash
+cd backend
+npm install nodemailer
+```
+
+Then add these names (without real secrets) to `backend/.env.example` and configure
+real values only in `backend/.env`:
+
+```dotenv
+GMAIL_USER=your-account@gmail.com
+GMAIL_APP_PASSWORD=your-google-app-password
+```
+
+Use a Google App Password, not the account password. Validate both variables when
+email functionality is enabled. If email is not part of the current application,
+remove the unused service to avoid a broken dormant module.
+
+## Checks that passed
+
+- Every backend JavaScript file passed `node --check`; no syntax error was found.
+- All dependencies declared in `backend/package.json` are currently installed.
+- `backend/.env` exists and contains `PORT`, `MONGODB_URI`, `JWT_SECRET`, and
+  `CLIENT_URL`.
+- The configured JWT secret meets the documented minimum length.
+- Local frontend origins `http://localhost:5173` and `http://localhost:5174` are
+  explicitly allowed by the backend CORS configuration.
+
+## Recommended repair order
+
+1. Replace the placeholder `MONGODB_URI` and verify the database independently.
+2. Ensure only one process uses port 5000, or consistently change both backend and
+   frontend ports.
+3. Change startup flow to await MongoDB before calling `app.listen()`.
+4. Add startup environment validation.
+5. Start the backend with `cd backend && npm run dev` and test `GET /api/health`.

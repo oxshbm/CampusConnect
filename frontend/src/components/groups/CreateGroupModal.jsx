@@ -9,27 +9,14 @@ const CreateGroupModal = ({ onClose, onCreated }) => {
   const handleSubmit = async (formData) => {
     try {
       setError('');
-      await createNewGroup(
-        formData.name,
-        formData.subject,
-        formData.description,
-        formData.semester,
-        formData.tags,
-        formData.visibility,
-        formData.maxMembers,
-        formData.meetingType,
-        formData.location,
-        formData.scheduleDays,
-        formData.startTime,
-        formData.duration
-      );
+      await createNewGroup(formData);
 
       if (onCreated) {
         onCreated();
       }
       onClose();
     } catch (err) {
-      setError(err.message || 'Failed to create group');
+      setError(err.response?.data?.message || err.message || 'Failed to create group');
     }
   };
 

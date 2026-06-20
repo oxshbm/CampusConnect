@@ -1,10 +1,14 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 const GroupCard = ({ group, onJoin }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const isMember = user && group.members.some((m) => m.id === user.id);
+  const userId = user?.id || user?._id;
+  const memberCount = group.memberCount ?? group.members?.length ?? 0;
+  const isMember = Boolean(group.isMember || (userId && group.members?.some((m) => (m._id || m.id || m) === userId)));
+  const isOwner = Boolean(group.isOwner || group.isCreator);
+  const isPending = group.requestStatus === 'pending';
+  const isFull = group.isFull || memberCount >= group.maxMembers;
 
   const handleJoin = () => {
     if (onJoin) {
@@ -75,7 +79,7 @@ const GroupCard = ({ group, onJoin }) => {
       <div className="mt-4 flex justify-between items-center text-sm border-t border-zinc-100 dark:border-zinc-700 pt-4">
         <div className="flex items-center gap-2">
           <span className="text-lg">👥</span>
-          <span className="font-semibold text-zinc-700 dark:text-zinc-300">{group.members.length}</span>
+          <span className="font-semibold text-zinc-700 dark:text-zinc-300">{memberCount}</span>
           <span className="text-zinc-500 dark:text-zinc-400">members</span>
         </div>
         <span className="text-xs bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 px-3 py-1 rounded-full font-medium">
@@ -84,20 +88,30 @@ const GroupCard = ({ group, onJoin }) => {
       </div>
 
       <div className="mt-4">
-        {user && !isMember && (
+        {user && !isMember && !isOwner && !isPending && !isFull && (
           <button
             onClick={handleJoin}
             className="btn-primary w-full"
           >
-            ➕ Join Group
+            Request to Join
           </button>
         )}
-        {isMember && (
+        {user && !isMember && !isOwner && isPending && (
+          <button disabled className="btn-primary w-full bg-gradient-to-r from-amber-600 to-amber-700 cursor-not-allowed">
+            Request Pending
+          </button>
+        )}
+        {user && !isMember && !isOwner && isFull && (
+          <button disabled className="btn-primary w-full bg-gradient-to-r from-zinc-500 to-zinc-600 cursor-not-allowed">
+            Group Full
+          </button>
+        )}
+        {(isMember || isOwner) && (
           <Link
             to={`/group/${group._id}`}
             className="btn-primary w-full text-center block bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 hover:from-green-700 hover:to-green-800 dark:hover:from-green-600 dark:hover:to-green-700"
           >
-            ✓ View Group
+            {isOwner ? 'Owner Dashboard' : 'View Group'}
           </Link>
         )}
       </div>

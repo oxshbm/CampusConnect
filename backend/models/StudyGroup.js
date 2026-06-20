@@ -72,5 +72,6 @@ const studyGroupSchema = new mongoose.Schema(
 // Indexes for efficient querying
 studyGroupSchema.index({ subject: 1, visibility: 1 });
 studyGroupSchema.index({ tags: 1 });
+studyGroupSchema.index({ name: 'text', subject: 'text', description: 'text', tags: 'text' });
 
 module.exports = mongoose.model('StudyGroup', studyGroupSchema);

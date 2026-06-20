@@ -2,32 +2,38 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroups } from '../../hooks/useGroups';
 import Spinner from '../common/Spinner';
+import { useState } from 'react';
 
 const GroupDashboard = ({ group }) => {
   const { user } = useAuth();
   const { leaveExistingGroup, deleteExistingGroup, loading } = useGroups();
   const navigate = useNavigate();
+  const [error, setError] = useState('');
 
-  const isCreator = user && group.createdBy._id === user.id;
-  const isMember = user && group.members.some((m) => m._id === user.id);
+  const userId = user?.id || user?._id;
+  const isCreator = Boolean(group.isOwner || group.isCreator || (userId && group.createdBy?._id === userId));
+  const isMember = Boolean(group.isMember || (userId && group.members.some((m) => (m._id || m.id || m) === userId)));
+  const memberCount = group.memberCount ?? group.members.length;
 
   const handleLeave = async () => {
     if (!window.confirm('Are you sure you want to leave this group?')) return;
     try {
+      setError('');
       await leaveExistingGroup(group._id);
       navigate('/');
     } catch (error) {
-      console.error('Failed to leave group:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to leave group');
     }
   };
 
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this group? This cannot be undone.')) return;
     try {
+      setError('');
       await deleteExistingGroup(group._id);
       navigate('/');
     } catch (error) {
-      console.error('Failed to delete group:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to delete group');
     }
   };
 
@@ -53,6 +59,12 @@ const GroupDashboard = ({ group }) => {
 
       {group.description && (
         <p className="text-zinc-700 dark:text-zinc-300 mt-6 mb-6 text-lg leading-relaxed">{group.description}</p>
+      )}
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 rounded-lg">
+          {error}
+        </div>
       )}
 
       {group.semester && (
@@ -121,7 +133,7 @@ const GroupDashboard = ({ group }) => {
       <div className="grid grid-cols-2 gap-4 my-6 p-6 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl border border-purple-200 dark:border-purple-700">
         <div>
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">Members</p>
-          <p className="text-2xl md:text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{group.members.length}</p>
+          <p className="text-2xl md:text-4xl font-bold text-purple-700 dark:text-purple-200 mt-2">{memberCount}</p>
         </div>
         <div>
           <p className="text-sm text-purple-600 dark:text-purple-300 font-semibold uppercase tracking-wide">Max Capacity</p>

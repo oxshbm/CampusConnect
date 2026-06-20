@@ -6,15 +6,18 @@ import CreateGroupModal from '../components/groups/CreateGroupModal';
 import Spinner from '../components/common/Spinner';
 
 const HomePage = () => {
-  const { fetchPublicGroups, joinExistingGroup, loading } = useGroups();
+  const { fetchPublicGroups, requestToJoinExistingGroup, loading } = useGroups();
   const { user } = useAuth();
   const [groups, setGroups] = useState([]);
+  const [query, setQuery] = useState('');
   const [subject, setSubject] = useState('');
   const [tags, setTags] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
 
   const loadGroups = async () => {
-    const data = await fetchPublicGroups(subject, tags);
+    const data = await fetchPublicGroups({ q: query, subject, tags });
     setGroups(data);
   };
 
@@ -28,10 +31,13 @@ const HomePage = () => {
 
   const handleJoin = async (groupId) => {
     try {
-      await joinExistingGroup(groupId);
-      loadGroups();
+      setError('');
+      setNotice('');
+      const updatedGroup = await requestToJoinExistingGroup(groupId);
+      setGroups((prev) => prev.map((group) => (group._id === groupId ? { ...group, ...updatedGroup } : group)));
+      setNotice('Join request sent to the group owner.');
     } catch (error) {
-      console.error('Failed to join group:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to request joining group');
     }
   };
 
@@ -43,7 +49,7 @@ const HomePage = () => {
             <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-3">
               Study Groups
             </h1>
-            <p className="text-zinc-600 dark:text-zinc-400 text-base md:text-lg">Discover and join study groups that match your interests</p>
+          <p className="text-zinc-600 dark:text-zinc-400 text-base md:text-lg">Discover study groups and request access from the owner</p>
           </div>
           {user && (
             <button
@@ -57,7 +63,27 @@ const HomePage = () => {
 
         <div className="card p-4 md:p-8 mb-8 md:mb-12 border-l-4 border-l-purple-600 dark:border-l-purple-500">
           <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">🔍 Search Groups</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {notice && (
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 rounded-lg">
+              {notice}
+            </div>
+          )}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 rounded-lg">
+              {error}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="label">Search</label>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Name, description, subject..."
+                className="input-field"
+              />
+            </div>
             <div>
               <label className="label">Subject</label>
               <input

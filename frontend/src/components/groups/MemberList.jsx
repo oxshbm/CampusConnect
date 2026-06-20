@@ -8,7 +8,10 @@ const MemberList = ({ members }) => {
         </span>
       </div>
       <div className="space-y-3">
-        {members.map((member, index) => (
+        {members.length === 0 && (
+          <p className="text-zinc-600 dark:text-zinc-400">No members yet.</p>
+        )}
+        {members.map((member) => (
           <div
             key={member._id}
             className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-zinc-50 dark:from-purple-900 dark:to-zinc-800 rounded-lg border border-purple-100 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md dark:hover:shadow-purple-900/50 transition-all duration-300"
@@ -18,7 +21,7 @@ const MemberList = ({ members }) => {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-zinc-900 dark:text-white">{member.name}</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">{member.email}</p>
+              {member.email && <p className="text-sm text-zinc-600 dark:text-zinc-400">{member.email}</p>}
               {member.course && (
                 <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
                   {member.course} • Year {member.year}

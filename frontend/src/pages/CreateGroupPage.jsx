@@ -8,15 +8,7 @@ const CreateGroupPage = () => {
 
   const handleSubmit = async (formData) => {
     try {
-      const result = await createNewGroup(
-        formData.name,
-        formData.subject,
-        formData.description,
-        formData.semester,
-        formData.tags,
-        formData.visibility,
-        formData.maxMembers
-      );
+      const result = await createNewGroup(formData);
       navigate(`/group/${result._id}`);
     } catch (error) {
       console.error('Failed to create group:', error);

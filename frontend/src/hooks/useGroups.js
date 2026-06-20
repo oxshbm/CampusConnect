@@ -5,14 +5,16 @@ export const useGroups = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchPublicGroups = async (subject, tags) => {
+  const getErrorMessage = (err) => err.response?.data?.message || err.message || 'Something went wrong';
+
+  const fetchPublicGroups = async (filters = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await groupApi.getPublicGroups(subject, tags);
+      const response = await groupApi.getPublicGroups(filters);
       return response.data || [];
     } catch (err) {
-      setError(err.message);
+      setError(getErrorMessage(err));
       return [];
     } finally {
       setLoading(false);
@@ -26,7 +28,7 @@ export const useGroups = () => {
       const response = await groupApi.getMyGroups();
       return response.data || [];
     } catch (err) {
-      setError(err.message);
+      setError(getErrorMessage(err));
       return [];
     } finally {
       setLoading(false);
@@ -40,62 +42,35 @@ export const useGroups = () => {
       const response = await groupApi.getGroupById(groupId);
       return response.data || null;
     } catch (err) {
-      setError(err.message);
+      setError(getErrorMessage(err));
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  const createNewGroup = async (name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration) => {
+  const createNewGroup = async (payload) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await groupApi.createGroup(
-        name,
-        subject,
-        description,
-        semester,
-        tags,
-        visibility,
-        maxMembers,
-        meetingType,
-        location,
-        scheduleDays,
-        startTime,
-        duration
-      );
+      const response = await groupApi.createGroup(payload);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getErrorMessage(err));
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const updateExistingGroup = async (groupId, name, subject, description, semester, tags, visibility, maxMembers, meetingType, location, scheduleDays, startTime, duration) => {
+  const updateExistingGroup = async (groupId, payload) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await groupApi.updateGroup(
-        groupId,
-        name,
-        subject,
-        description,
-        semester,
-        tags,
-        visibility,
-        maxMembers,
-        meetingType,
-        location,
-        scheduleDays,
-        startTime,
-        duration
-      );
+      const response = await groupApi.updateGroup(groupId, payload);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getErrorMessage(err));
       throw err;
     } finally {
       setLoading(false);
@@ -109,7 +84,7 @@ export const useGroups = () => {
       const response = await groupApi.deleteGroup(groupId);
       return response;
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getErrorMessage(err));
       throw err;
     } finally {
       setLoading(false);
@@ -121,9 +96,9 @@ export const useGroups = () => {
     setError(null);
     try {
       const response = await groupApi.joinGroup(groupId);
-      return response.data;
+      return response.group || response.data;
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getErrorMessage(err));
       throw err;
     } finally {
       setLoading(false);
@@ -137,7 +112,7 @@ export const useGroups = () => {
       const response = await groupApi.leaveGroup(groupId);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getErrorMessage(err));
       throw err;
     } finally {
       setLoading(false);
@@ -151,10 +126,118 @@ export const useGroups = () => {
       const response = await groupApi.getGroupMembers(groupId);
       return response.data || [];
     } catch (err) {
-      setError(err.message);
+      setError(getErrorMessage(err));
       return [];
     } finally {
       setLoading(false);
+    }
+  };
+
+  const requestToJoinExistingGroup = async (groupId, message = '') => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.requestToJoinGroup(groupId, message);
+      return response.group || response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelExistingJoinRequest = async (groupId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await groupApi.cancelJoinRequest(groupId);
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchJoinRequests = async (groupId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.getJoinRequests(groupId);
+      return response.data || [];
+    } catch (err) {
+      setError(getErrorMessage(err));
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const approveExistingJoinRequest = async (groupId, requestId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.approveJoinRequest(groupId, requestId);
+      return response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectExistingJoinRequest = async (groupId, requestId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.rejectJoinRequest(groupId, requestId);
+      return response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const transferExistingOwnership = async (groupId, newOwnerId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.transferOwnership(groupId, newOwnerId);
+      return response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchGroupMessages = async (groupId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.getGroupMessages(groupId);
+      return response.data || [];
+    } catch (err) {
+      setError(getErrorMessage(err));
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendExistingGroupMessage = async (groupId, body) => {
+    setError(null);
+    try {
+      const response = await groupApi.sendGroupMessage(groupId, body);
+      return response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
     }
   };
 
@@ -168,7 +251,15 @@ export const useGroups = () => {
     updateExistingGroup,
     deleteExistingGroup,
     joinExistingGroup,
+    requestToJoinExistingGroup,
+    cancelExistingJoinRequest,
+    fetchJoinRequests,
+    approveExistingJoinRequest,
+    rejectExistingJoinRequest,
+    transferExistingOwnership,
     leaveExistingGroup,
     fetchGroupMembers,
+    fetchGroupMessages,
+    sendExistingGroupMessage,
   };
 };
