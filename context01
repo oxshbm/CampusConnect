@@ -1,0 +1,28 @@
+Context handoff for next agent
+
+Workspace:
+- Repository root: /home/shubham/CAMPUSCONNECT001/CampusConnect
+- Shell: zsh
+- Date: 2026-06-21
+- Timezone: Asia/Kolkata
+- Filesystem: workspace-write; writable root is /home/shubham/CAMPUSCONNECT001/CampusConnect
+
+User request so far:
+- The user asked: "write context so far in the new file called context01 so i can give it to next agent for changes"
+- No implementation/debugging request has been made yet in this thread.
+- No project files have been inspected or modified before creating this handoff file.
+
+Current agent action:
+- Created this file: context01
+- No tests or commands have been run.
+- No dev server has been started.
+
+Important operating constraints for the next agent:
+- Do not revert user changes or unrelated work in the git tree.
+- Use rg/rg --files for searching when possible.
+- Use apply_patch for manual file edits.
+- For frontend work, inspect existing conventions first and verify layout where practical.
+- If a command fails because of sandbox/network restrictions and is necessary, rerun with escalation and a concise approval request.
+
+Known project state:
+- Not inspected yet. Start by checking files, package scripts, and git status before changing code.
