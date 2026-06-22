@@ -7,6 +7,7 @@ import ProjectForm from '../components/projects/ProjectForm';
 import ApplicationsList from '../components/projects/ApplicationsList';
 import MemberList from '../components/groups/MemberList';
 import Spinner from '../components/common/Spinner';
+import ProjectChat from '../components/projects/ProjectChat';
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -25,7 +26,9 @@ const ProjectDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
 
-  const isCreator = user && project && project.createdBy && project.createdBy._id === user.id;
+  const isCreator = user && project && project.createdBy && (project.createdBy._id || project.createdBy) === user.id;
+  const userId = user?.id || user?._id;
+  const isMember = user && project && project.members?.some((member) => (member._id || member) === userId);
 
   const loadProjectData = async () => {
     const projectData = await fetchProjectById(id);
@@ -114,8 +117,8 @@ const ProjectDetailPage = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>
-            {/* Tabs for creator */}
-            {isCreator && (
+            {/* Tabs for members and creator */}
+            {(isCreator || isMember) && (
               <div className="flex gap-2 border-b border-zinc-200 dark:border-zinc-700">
                 <button
                   onClick={() => setActiveTab('details')}
@@ -128,15 +131,27 @@ const ProjectDetailPage = () => {
                   📊 Details
                 </button>
                 <button
-                  onClick={() => setActiveTab('applications')}
+                  onClick={() => setActiveTab('chat')}
                   className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
-                    activeTab === 'applications'
+                    activeTab === 'chat'
                       ? 'border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400'
                       : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
                   }`}
                 >
-                  📋 Applications {pendingApplicationCount > 0 && `(${pendingApplicationCount})`}
+                  💬 Chat
                 </button>
+                {isCreator && (
+                  <button
+                    onClick={() => setActiveTab('applications')}
+                    className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
+                      activeTab === 'applications'
+                        ? 'border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400'
+                        : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    📋 Applications {pendingApplicationCount > 0 && `(${pendingApplicationCount})`}
+                  </button>
+                )}
               </div>
             )}
 
@@ -150,6 +165,11 @@ const ProjectDetailPage = () => {
                 />
                 <MemberList members={project.members || []} />
               </>
+            )}
+
+            {/* Chat Tab */}
+            {activeTab === 'chat' && (isCreator || isMember) && (
+              <ProjectChat project={project} />
             )}
 
             {/* Applications Tab */}

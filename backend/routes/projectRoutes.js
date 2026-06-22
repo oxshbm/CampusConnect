@@ -10,6 +10,8 @@ const {
   getApplications,
   approveApplication,
   rejectApplication,
+  getProjectMessages,
+  createProjectMessage,
 } = require('../controllers/projectController');
 const authMiddleware = require('../middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
@@ -50,5 +52,9 @@ router.post('/:projectId/leave', authMiddleware, leaveProject);
 router.get('/:projectId/applications', authMiddleware, getApplications);
 router.post('/:projectId/applications/:applicantId/approve', authMiddleware, approveApplication);
 router.post('/:projectId/applications/:applicantId/reject', authMiddleware, rejectApplication);
+
+// Messaging routes
+router.get('/:projectId/messages', authMiddleware, getProjectMessages);
+router.post('/:projectId/messages', authMiddleware, createProjectMessage);
 
 module.exports = router;

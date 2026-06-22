@@ -160,6 +160,31 @@ export const useProjects = () => {
     }
   };
 
+  const fetchProjectMessages = async (projectId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await projectApi.getProjectMessages(projectId);
+      return response.data || [];
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendExistingProjectMessage = async (projectId, body) => {
+    setError(null);
+    try {
+      const response = await projectApi.sendProjectMessage(projectId, body);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    }
+  };
+
   return {
     loading,
     error,
@@ -173,5 +198,8 @@ export const useProjects = () => {
     fetchApplications,
     approveApplicant,
     rejectApplicant,
+    fetchProjectMessages,
+    sendExistingProjectMessage,
   };
 };
+

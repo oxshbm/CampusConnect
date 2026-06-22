@@ -67,3 +67,14 @@ export const rejectApplication = async (projectId, applicantId) => {
   const response = await axiosInstance.post(`/projects/${projectId}/applications/${applicantId}/reject`);
   return response.data;
 };
+
+export const getProjectMessages = async (projectId) => {
+  const response = await axiosInstance.get(`/projects/${projectId}/messages`);
+  return response.data;
+};
+
+export const sendProjectMessage = async (projectId, body) => {
+  const response = await axiosInstance.post(`/projects/${projectId}/messages`, { body });
+  return response.data;
+};
+

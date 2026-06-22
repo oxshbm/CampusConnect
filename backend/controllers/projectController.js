@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Project = require('../models/Project');
 const User = require('../models/User');
+const ProjectMessage = require('../models/ProjectMessage');
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 const sameId = (a, b) => a?.toString() === b?.toString();
@@ -433,6 +434,74 @@ const rejectApplication = async (req, res) => {
   }
 };
 
+// Helper to check if project exists, fetch it, and verify membership
+const getProjectAndRequireMember = async (projectId, userId) => {
+  if (!isValidId(projectId)) {
+    const error = new Error('Invalid project id');
+    error.status = 400;
+    throw error;
+  }
+
+  const project = await Project.findById(projectId);
+  if (!project) {
+    const error = new Error('Project not found');
+    error.status = 404;
+    throw error;
+  }
+
+  const isMember = project.members.some((memberId) => sameId(memberId, userId));
+  if (!isMember) {
+    const error = new Error('Only project members can perform this action');
+    error.status = 403;
+    throw error;
+  }
+
+  return project;
+};
+
+// Retrieve messages of a specific project (members only)
+const getProjectMessages = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const project = await getProjectAndRequireMember(projectId, req.user._id);
+
+    const messages = await ProjectMessage.find({ project: project._id })
+      .populate('sender', 'name')
+      .sort({ createdAt: -1 })
+      .limit(100);
+
+    res.json({ success: true, data: messages.reverse() });
+  } catch (error) {
+    sendError(res, error, 'Failed to fetch project messages');
+  }
+};
+
+// Send a project message (members only, handles fallback HTTP)
+const createProjectMessage = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const project = await getProjectAndRequireMember(projectId, req.user._id);
+
+    const body = (req.body.body || '').trim();
+    if (!body) {
+      return res.status(400).json({ success: false, message: 'Message cannot be empty' });
+    }
+
+    const message = await ProjectMessage.create({
+      project: project._id,
+      sender: req.user._id,
+      body,
+    });
+    const populated = await message.populate('sender', 'name');
+
+    req.app.get('io')?.to(`project:${project._id}`).emit('project:message', populated);
+
+    res.status(201).json({ success: true, data: populated });
+  } catch (error) {
+    sendError(res, error, 'Failed to send project message');
+  }
+};
+
 module.exports = {
   getOpenProjects,
   getProjectById,
@@ -444,4 +513,6 @@ module.exports = {
   getApplications,
   approveApplication,
   rejectApplication,
+  getProjectMessages,
+  createProjectMessage,
 };

@@ -5,6 +5,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 const registerGroupChat = require('./socket/groupChat');
+const registerProjectChat = require('./socket/projectChat');
 
 const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
@@ -53,6 +54,7 @@ const io = new Server(httpServer, {
   cors: { origin: allowedOrigins },
 });
 registerGroupChat(io);
+registerProjectChat(io);
 app.set('io', io);
 
 app.get('/api/health', (req, res) => {
