@@ -33,6 +33,7 @@ import AlumniProfilePage from './pages/alumni/AlumniProfilePage';
 import AlumniEventsPage from './pages/alumni/AlumniEventsPage';
 import AlumniClubsPage from './pages/alumni/AlumniClubsPage';
 import AlumniConnectionsPage from './pages/alumni/AlumniConnectionsPage';
+import ForumPage from './pages/ForumPage';
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
               <Route path="/clubs/:id" element={<ClubDetailPage />} />
               <Route path="/alumni" element={<AlumniConnectPage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/forum" element={<ForumPage />} />
             </Route>
           </Route>
 

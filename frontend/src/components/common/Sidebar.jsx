@@ -20,7 +20,8 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile = () => {} }) => {
     { label: 'Events Calendar', icon: '📅', path: '/events', active: true },
     { label: 'College Clubs', icon: '🏛️', path: '/clubs', active: true },
     { label: 'Alumni Connect', icon: '🎓', path: '/alumni', active: true },
-    { label: 'Feature 4', icon: '⚡', path: '/feature4', active: false },
+    { label: 'Forum', icon: '💬', path: '/forum', active: true },
+    { label: 'Feature 5', icon: '⚡', path: '/feature5', active: false },
   ];
 
   const isActive = (path) => {
