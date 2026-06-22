@@ -42,10 +42,17 @@ const validateEnvironment = () => {
 };
 
 // Middleware
+const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.trim() : '';
+const clientUrlNoSlash = clientUrl.replace(/\/$/, '');
+const clientUrlWithSlash = `${clientUrlNoSlash}/`;
+
 const allowedOrigins = [
-  process.env.CLIENT_URL,
+  clientUrlNoSlash,
+  clientUrlWithSlash,
   'http://localhost:5173',
+  'http://localhost:5173/',
   'http://localhost:5174',
+  'http://localhost:5174/',
 ].filter(Boolean);
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
