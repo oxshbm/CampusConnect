@@ -61,12 +61,34 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:5174/',
 ].filter(Boolean);
-app.use(cors({ origin: allowedOrigins }));
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    const exactMatch = allowedOrigins.some(allowed => 
+      origin.toLowerCase() === allowed.toLowerCase() || 
+      origin.toLowerCase() === `${allowed.toLowerCase()}/`
+    );
+
+    const isVercelPreview = origin.toLowerCase().startsWith('https://campus-connect-') && 
+                            origin.toLowerCase().endsWith('.vercel.app');
+
+    if (exactMatch || isVercelPreview) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: allowedOrigins },
+  cors: corsOptions,
 });
 registerGroupChat(io);
 registerProjectChat(io);
