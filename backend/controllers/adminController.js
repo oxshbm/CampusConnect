@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const StudyGroup = require('../models/StudyGroup');
+const GroupJoinRequest = require('../models/GroupJoinRequest');
+const GroupMessage = require('../models/GroupMessage');
 const Event = require('../models/Event');
 const Club = require('../models/Club');
 const ClubPost = require('../models/ClubPost');
@@ -115,14 +117,30 @@ const deleteUser = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Remove user from all groups
-    await StudyGroup.updateMany({ members: id }, { $pull: { members: id } });
+    const ownedGroups = await StudyGroup.find({ createdBy: id }).select('_id');
+    const ownedGroupIds = ownedGroups.map((group) => group._id);
 
-    // Delete all groups created by this user
-    await StudyGroup.deleteMany({ createdBy: id });
-
-    // Delete the user
-    await User.findByIdAndDelete(id);
+    await Promise.all([
+      // Remove user from groups they joined but do not own
+      StudyGroup.updateMany({ createdBy: { $ne: id }, members: id }, { $pull: { members: id } }),
+      // Remove deleted owned groups from every user's denormalized memberships
+      User.updateMany({ groupsJoined: { $in: ownedGroupIds } }, { $pull: { groupsJoined: { $in: ownedGroupIds } } }),
+      GroupJoinRequest.deleteMany({
+        $or: [
+          { group: { $in: ownedGroupIds } },
+          { requester: id },
+          { reviewedBy: id },
+        ],
+      }),
+      GroupMessage.deleteMany({
+        $or: [
+          { group: { $in: ownedGroupIds } },
+          { sender: id },
+        ],
+      }),
+      StudyGroup.deleteMany({ createdBy: id }),
+      User.findByIdAndDelete(id),
+    ]);
 
     res.json({
       success: true,
@@ -176,11 +194,12 @@ const deleteGroup = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Group not found' });
     }
 
-    // Remove group from all members' groupsJoined
-    await User.updateMany({ groupsJoined: id }, { $pull: { groupsJoined: id } });
-
-    // Delete the group
-    await StudyGroup.findByIdAndDelete(id);
+    await Promise.all([
+      User.updateMany({ groupsJoined: id }, { $pull: { groupsJoined: id } }),
+      GroupJoinRequest.deleteMany({ group: id }),
+      GroupMessage.deleteMany({ group: id }),
+      StudyGroup.findByIdAndDelete(id),
+    ]);
 
     res.json({
       success: true,

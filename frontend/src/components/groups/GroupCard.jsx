@@ -1,14 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
+const toId = (value) => value?._id || value?.id || value;
+const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
+
 const GroupCard = ({ group, onJoin }) => {
   const { user } = useAuth();
   const userId = user?.id || user?._id;
   const memberCount = group.memberCount ?? group.members?.length ?? 0;
-  const isMember = Boolean(group.isMember || (userId && group.members?.some((m) => (m._id || m.id || m) === userId)));
+  const isMember = Boolean(group.isMember || (userId && group.members?.some((member) => sameId(member, userId))));
   const isOwner = Boolean(group.isOwner || group.isCreator);
   const isPending = group.requestStatus === 'pending';
   const isFull = group.isFull || memberCount >= group.maxMembers;
+  const tags = group.tags || [];
 
   const handleJoin = () => {
     if (onJoin) {
@@ -66,13 +70,13 @@ const GroupCard = ({ group, onJoin }) => {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {group.tags.slice(0, 3).map((tag) => (
+        {tags.slice(0, 3).map((tag) => (
           <span key={tag} className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs px-3 py-1 rounded-full font-medium">
             {tag}
           </span>
         ))}
-        {group.tags.length > 3 && (
-          <span className="text-zinc-500 dark:text-zinc-400 text-xs px-2 py-1">+{group.tags.length - 3}</span>
+        {tags.length > 3 && (
+          <span className="text-zinc-500 dark:text-zinc-400 text-xs px-2 py-1">+{tags.length - 3}</span>
         )}
       </div>
 
@@ -93,7 +97,7 @@ const GroupCard = ({ group, onJoin }) => {
             onClick={handleJoin}
             className="btn-primary w-full"
           >
-            Request to Join
+            {group.visibility === 'public' ? 'Join Group' : 'Request to Join'}
           </button>
         )}
         {user && !isMember && !isOwner && isPending && (

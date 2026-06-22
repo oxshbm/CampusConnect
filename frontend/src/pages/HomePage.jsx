@@ -6,7 +6,7 @@ import CreateGroupModal from '../components/groups/CreateGroupModal';
 import Spinner from '../components/common/Spinner';
 
 const HomePage = () => {
-  const { fetchPublicGroups, requestToJoinExistingGroup, loading } = useGroups();
+  const { fetchPublicGroups, joinExistingGroup, requestToJoinExistingGroup, loading } = useGroups();
   const { user } = useAuth();
   const [groups, setGroups] = useState([]);
   const [query, setQuery] = useState('');
@@ -33,11 +33,18 @@ const HomePage = () => {
     try {
       setError('');
       setNotice('');
-      const updatedGroup = await requestToJoinExistingGroup(groupId);
-      setGroups((prev) => prev.map((group) => (group._id === groupId ? { ...group, ...updatedGroup } : group)));
-      setNotice('Join request sent to the group owner.');
+      const targetGroup = groups.find((g) => g._id === groupId);
+      if (targetGroup && targetGroup.visibility === 'public') {
+        const updatedGroup = await joinExistingGroup(groupId);
+        setGroups((prev) => prev.map((group) => (group._id === groupId ? { ...group, ...updatedGroup, isMember: true } : group)));
+        setNotice('Joined group successfully.');
+      } else {
+        const updatedGroup = await requestToJoinExistingGroup(groupId);
+        setGroups((prev) => prev.map((group) => (group._id === groupId ? { ...group, ...updatedGroup } : group)));
+        setNotice('Join request sent to the group owner.');
+      }
     } catch (error) {
-      setError(error.response?.data?.message || error.message || 'Failed to request joining group');
+      setError(error.response?.data?.message || error.message || 'Failed to join group');
     }
   };
 

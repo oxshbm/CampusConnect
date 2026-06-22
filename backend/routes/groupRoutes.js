@@ -16,6 +16,9 @@ const {
   getGroupMembers,
   getGroupMessages,
   createGroupMessage,
+  joinGroup,
+  addGroupMember,
+  removeGroupMember,
 } = require('../controllers/groupController');
 const authMiddleware = require('../middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
@@ -50,7 +53,7 @@ router.put('/:id', authMiddleware, updateGroup);
 router.delete('/:id', authMiddleware, deleteGroup);
 
 // Group membership routes
-router.post('/:id/join', authMiddleware, requestToJoinGroup);
+router.post('/:id/join', authMiddleware, joinGroup);
 router.post('/:id/requests', authMiddleware, requestToJoinGroup);
 router.delete('/:id/requests/me', authMiddleware, cancelJoinRequest);
 router.get('/:id/requests', authMiddleware, getJoinRequests);
@@ -59,6 +62,8 @@ router.post('/:id/requests/:requestId/reject', authMiddleware, rejectJoinRequest
 router.post('/:id/transfer-ownership', authMiddleware, transferOwnership);
 router.post('/:id/leave', authMiddleware, leaveGroup);
 router.get('/:id/members', authMiddleware, getGroupMembers);
+router.post('/:id/members', authMiddleware, addGroupMember);
+router.delete('/:id/members/:userId', authMiddleware, removeGroupMember);
 router.get('/:id/messages', authMiddleware, getGroupMessages);
 router.post('/:id/messages', authMiddleware, createGroupMessage);
 

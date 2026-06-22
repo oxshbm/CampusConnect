@@ -1,11 +1,17 @@
 const mongoose = require('mongoose');
 const StudyGroup = require('../models/StudyGroup');
+const User = require('../models/User');
 const GroupJoinRequest = require('../models/GroupJoinRequest');
 const GroupMessage = require('../models/GroupMessage');
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 const sameId = (a, b) => a?.toString() === b?.toString();
 const toId = (value) => value?._id || value;
+const getGroupAccess = (group, userId) => {
+  const isOwner = Boolean(userId && sameId(toId(group.createdBy), userId));
+  const isMember = Boolean(userId && (group.members || []).some((member) => sameId(toId(member), userId)));
+  return { isOwner, isMember, canAccessPrivate: isOwner || isMember };
+};
 
 const normalizeTags = (tags) => {
   if (!tags) return [];
@@ -63,8 +69,7 @@ const getPendingRequestMap = async (groups, userId) => {
 const decorateGroup = (groupDoc, userId, requestStatus) => {
   const group = groupDoc.toObject ? groupDoc.toObject() : groupDoc;
   const members = group.members || [];
-  const isOwner = Boolean(userId && sameId(toId(group.createdBy), userId));
-  const isMember = Boolean(userId && members.some((member) => sameId(toId(member), userId)));
+  const { isOwner, isMember } = getGroupAccess(group, userId);
   const memberCount = members.length;
   const visibleMembers = isMember || isOwner
     ? members
@@ -132,7 +137,7 @@ const sendError = (res, error, fallback) => {
 const getPublicGroups = async (req, res) => {
   try {
     const { q, subject, tags, meetingType, page = 1, limit = 30 } = req.query;
-    const filter = {};
+    const filter = { visibility: 'public' };
 
     if (q) {
       const regex = { $regex: q.trim(), $options: 'i' };
@@ -184,6 +189,12 @@ const getMyGroups = async (req, res) => {
 const getGroupById = async (req, res) => {
   try {
     const group = await getGroupOr404(req.params.id);
+    const access = getGroupAccess(group, req.user?._id);
+
+    if (group.visibility === 'private' && !access.canAccessPrivate) {
+      return res.status(403).json({ success: false, message: 'This private group is only available to members' });
+    }
+
     const request = req.user
       ? await GroupJoinRequest.findOne({ group: group._id, requester: req.user._id, status: 'pending' })
       : null;
@@ -212,6 +223,7 @@ const createGroup = async (req, res) => {
       startTime: payload.startTime || '',
       duration: payload.duration || '',
     });
+    await User.findByIdAndUpdate(req.user._id, { $addToSet: { groupsJoined: group._id } });
 
     const populatedGroup = await getGroupOr404(group._id);
     res.status(201).json({
@@ -258,6 +270,7 @@ const deleteGroup = async (req, res) => {
     await Promise.all([
       GroupJoinRequest.deleteMany({ group: group._id }),
       GroupMessage.deleteMany({ group: group._id }),
+      User.updateMany({ groupsJoined: group._id }, { $pull: { groupsJoined: group._id } }),
       StudyGroup.findByIdAndDelete(group._id),
     ]);
 
@@ -271,9 +284,13 @@ const requestToJoinGroup = async (req, res) => {
   try {
     const group = await getGroupOr404(req.params.id);
     const userId = req.user._id;
+    const access = getGroupAccess(group, userId);
 
-    if (group.members.some((member) => sameId(member._id, userId))) {
+    if (access.isMember) {
       return res.status(409).json({ success: false, message: 'You are already a member of this group' });
+    }
+    if (group.visibility === 'private' && !access.canAccessPrivate) {
+      return res.status(403).json({ success: false, message: 'Private groups are invite only' });
     }
     if (group.members.length >= group.maxMembers) {
       return res.status(409).json({ success: false, message: 'Group is full' });
@@ -360,6 +377,8 @@ const approveJoinRequest = async (req, res) => {
       return res.status(409).json({ success: false, message: 'Group is full or user is already a member' });
     }
 
+    await User.findByIdAndUpdate(request.requester, { $addToSet: { groupsJoined: group._id } });
+
     request.status = 'approved';
     request.reviewedBy = req.user._id;
     request.reviewedAt = new Date();
@@ -425,6 +444,7 @@ const leaveGroup = async (req, res) => {
 
     group.members = group.members.filter((id) => !sameId(id, req.user._id));
     await group.save();
+    await User.findByIdAndUpdate(req.user._id, { $pull: { groupsJoined: group._id } });
 
     const updatedGroup = await getGroupOr404(group._id);
     res.json({ success: true, data: decorateGroup(updatedGroup, req.user._id) });
@@ -477,6 +497,124 @@ const createGroupMessage = async (req, res) => {
   }
 };
 
+const joinGroup = async (req, res) => {
+  try {
+    const group = await getGroupOr404(req.params.id);
+    const userId = req.user._id;
+    const access = getGroupAccess(group, userId);
+
+    if (access.isMember) {
+      return res.status(409).json({ success: false, message: 'You are already a member of this group' });
+    }
+    if (group.visibility === 'private') {
+      return res.status(403).json({ success: false, message: 'Private groups are invite only' });
+    }
+    if (group.members.length >= group.maxMembers) {
+      return res.status(409).json({ success: false, message: 'Group is full' });
+    }
+
+    const updatedGroup = await StudyGroup.findByIdAndUpdate(
+      group._id,
+      { $addToSet: { members: userId } },
+      { new: true }
+    )
+      .populate('createdBy', 'name course year')
+      .populate('members', 'name email course year');
+
+    await User.findByIdAndUpdate(userId, { $addToSet: { groupsJoined: group._id } });
+
+    res.json({
+      success: true,
+      data: decorateGroup(updatedGroup, userId),
+      message: 'Joined group successfully',
+    });
+  } catch (error) {
+    sendError(res, error, 'Failed to join group');
+  }
+};
+
+const addGroupMember = async (req, res) => {
+  try {
+    const group = await getGroupOr404(req.params.id);
+    requireOwner(group, req.user._id);
+
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    const targetUser = await User.findOne({ email: email.toLowerCase() });
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const access = getGroupAccess(group, targetUser._id);
+    if (access.isMember) {
+      return res.status(409).json({ success: false, message: 'User is already a member of this group' });
+    }
+
+    if (group.members.length >= group.maxMembers) {
+      return res.status(409).json({ success: false, message: 'Group is full' });
+    }
+
+    const updatedGroup = await StudyGroup.findByIdAndUpdate(
+      group._id,
+      { $addToSet: { members: targetUser._id } },
+      { new: true }
+    )
+      .populate('createdBy', 'name course year')
+      .populate('members', 'name email course year');
+
+    await User.findByIdAndUpdate(targetUser._id, { $addToSet: { groupsJoined: group._id } });
+
+    res.json({
+      success: true,
+      data: decorateGroup(updatedGroup, req.user._id),
+      message: 'Member added successfully',
+    });
+  } catch (error) {
+    sendError(res, error, 'Failed to add member to group');
+  }
+};
+
+const removeGroupMember = async (req, res) => {
+  try {
+    const group = await getGroupOr404(req.params.id);
+    requireOwner(group, req.user._id);
+
+    const { userId } = req.params;
+    if (!isValidId(userId)) {
+      return res.status(400).json({ success: false, message: 'Invalid user id' });
+    }
+    if (sameId(userId, req.user._id)) {
+      return res.status(400).json({ success: false, message: 'You cannot kick yourself. Leave or transfer ownership instead.' });
+    }
+
+    const isMember = group.members.some((member) => sameId(member._id || member, userId));
+    if (!isMember) {
+      return res.status(400).json({ success: false, message: 'User is not a member of this group' });
+    }
+
+    const updatedGroup = await StudyGroup.findByIdAndUpdate(
+      group._id,
+      { $pull: { members: userId } },
+      { new: true }
+    )
+      .populate('createdBy', 'name course year')
+      .populate('members', 'name email course year');
+
+    await User.findByIdAndUpdate(userId, { $pull: { groupsJoined: group._id } });
+
+    res.json({
+      success: true,
+      data: decorateGroup(updatedGroup, req.user._id),
+      message: 'Member removed successfully',
+    });
+  } catch (error) {
+    sendError(res, error, 'Failed to remove member from group');
+  }
+};
+
 module.exports = {
   getPublicGroups,
   getMyGroups,
@@ -494,4 +632,7 @@ module.exports = {
   getGroupMembers,
   getGroupMessages,
   createGroupMessage,
+  joinGroup,
+  addGroupMember,
+  removeGroupMember,
 };

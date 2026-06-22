@@ -10,6 +10,10 @@ const ProjectDashboard = ({ project, onStatusChange, onApply }) => {
 
   const isCreator = user && project.createdBy && project.createdBy._id === user.id;
   const isMember = user && project.members && project.members.some((m) => m._id === user.id);
+  const hasPendingApplication =
+    user &&
+    project.applications &&
+    project.applications.some((a) => (a.user?._id || a.user) === user.id && a.status === 'pending');
 
   const handleStatusChange = async (newStatus) => {
     if (onStatusChange) {
@@ -175,13 +179,22 @@ const ProjectDashboard = ({ project, onStatusChange, onApply }) => {
       )}
 
       {!isCreator && !isMember && project.status === 'open' && (
-        <button
-          onClick={handleApply}
-          disabled={loading}
-          className="btn-primary w-full"
-        >
-          ➕ Apply to Join
-        </button>
+        hasPendingApplication ? (
+          <button
+            disabled
+            className="btn-primary w-full opacity-50 cursor-not-allowed bg-gradient-to-r from-yellow-600 to-yellow-700"
+          >
+            ⏳ Applied
+          </button>
+        ) : (
+          <button
+            onClick={handleApply}
+            disabled={loading}
+            className="btn-primary w-full"
+          >
+            ➕ Apply to Join
+          </button>
+        )
       )}
 
       {isCreator && (

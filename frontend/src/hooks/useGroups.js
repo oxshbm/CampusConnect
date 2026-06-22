@@ -43,7 +43,7 @@ export const useGroups = () => {
       return response.data || null;
     } catch (err) {
       setError(getErrorMessage(err));
-      return null;
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -241,6 +241,34 @@ export const useGroups = () => {
     }
   };
 
+  const addMemberToExistingGroup = async (groupId, email) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.addGroupMember(groupId, email);
+      return response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeMemberFromExistingGroup = async (groupId, userId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await groupApi.removeGroupMember(groupId, userId);
+      return response.data;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
@@ -261,5 +289,7 @@ export const useGroups = () => {
     fetchGroupMembers,
     fetchGroupMessages,
     sendExistingGroupMessage,
+    addMemberToExistingGroup,
+    removeMemberFromExistingGroup,
   };
 };

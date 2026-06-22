@@ -89,3 +89,13 @@ export const sendGroupMessage = async (groupId, body) => {
   const response = await axiosInstance.post(`/groups/${groupId}/messages`, { body });
   return response.data;
 };
+
+export const addGroupMember = async (groupId, email) => {
+  const response = await axiosInstance.post(`/groups/${groupId}/members`, { email });
+  return response.data;
+};
+
+export const removeGroupMember = async (groupId, userId) => {
+  const response = await axiosInstance.delete(`/groups/${groupId}/members/${userId}`);
+  return response.data;
+};

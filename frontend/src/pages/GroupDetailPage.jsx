@@ -9,17 +9,23 @@ import GroupChat from '../components/groups/GroupChat';
 import Spinner from '../components/common/Spinner';
 import { useAuth } from '../hooks/useAuth';
 
+const toId = (value) => value?._id || value?.id || value;
+const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
+
 const GroupDetailPage = () => {
   const { id } = useParams();
   const {
     fetchGroupById,
     updateExistingGroup,
+    joinExistingGroup,
     requestToJoinExistingGroup,
     cancelExistingJoinRequest,
     fetchJoinRequests,
     approveExistingJoinRequest,
     rejectExistingJoinRequest,
     transferExistingOwnership,
+    addMemberToExistingGroup,
+    removeMemberFromExistingGroup,
     loading,
   } = useGroups();
   const { user } = useAuth();
@@ -29,13 +35,27 @@ const GroupDetailPage = () => {
   const [selectedOwner, setSelectedOwner] = useState('');
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const loadGroup = async () => {
-    const data = await fetchGroupById(id);
-    setGroup(data);
-    if (data?.isOwner) {
-      const pending = await fetchJoinRequests(id);
-      setRequests(pending);
+    try {
+      setHasLoaded(false);
+      setError('');
+      setNotice('');
+      const data = await fetchGroupById(id);
+      setGroup(data);
+      if (data?.isOwner) {
+        const pending = await fetchJoinRequests(id);
+        setRequests(pending);
+      } else {
+        setRequests([]);
+      }
+    } catch (error) {
+      setGroup(null);
+      setRequests([]);
+      setError(error.response?.data?.message || error.message || 'Failed to fetch group');
+    } finally {
+      setHasLoaded(true);
     }
   };
 
@@ -62,6 +82,42 @@ const GroupDetailPage = () => {
       setNotice('Join request sent to the group owner.');
     } catch (error) {
       setError(error.response?.data?.message || error.message || 'Failed to request access');
+    }
+  };
+
+  const handleJoin = async () => {
+    try {
+      setError('');
+      const updated = await joinExistingGroup(id);
+      setGroup((prev) => ({ ...prev, ...updated, isMember: true }));
+      setNotice('Joined group successfully.');
+    } catch (error) {
+      setError(error.response?.data?.message || error.message || 'Failed to join group');
+    }
+  };
+
+  const handleInvite = async (email) => {
+    try {
+      setError('');
+      setNotice('');
+      const updated = await addMemberToExistingGroup(id, email);
+      setGroup(updated);
+      setNotice('Member added successfully.');
+    } catch (error) {
+      setError(error.response?.data?.message || error.message || 'Failed to add member');
+    }
+  };
+
+  const handleKick = async (userId) => {
+    if (!window.confirm('Are you sure you want to remove this member?')) return;
+    try {
+      setError('');
+      setNotice('');
+      const updated = await removeMemberFromExistingGroup(id, userId);
+      setGroup(updated);
+      setNotice('Member removed successfully.');
+    } catch (error) {
+      setError(error.response?.data?.message || error.message || 'Failed to remove member');
     }
   };
 
@@ -109,11 +165,26 @@ const GroupDetailPage = () => {
     }
   };
 
-  if (loading || !group) return <Spinner />;
+  if (loading || !hasLoaded) return <Spinner />;
+
+  if (!group) {
+    return (
+      <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="card p-4 md:p-8 border-l-4 border-l-red-600">
+            <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Group Unavailable</h1>
+            <p className="text-zinc-600 dark:text-zinc-400">
+              {error || 'This group could not be loaded.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const userId = user?.id || user?._id;
-  const isCreator = Boolean(group.isOwner || group.isCreator || (userId && group.createdBy?._id === userId));
-  const isMember = Boolean(group.isMember || group.members?.some((member) => (member._id || member.id || member) === userId));
+  const isCreator = Boolean(group.isOwner || group.isCreator || (userId && sameId(group.createdBy, userId)));
+  const isMember = Boolean(group.isMember || group.members?.some((member) => sameId(member, userId)));
   const canRequest = user && !isMember && !isCreator && group.requestStatus !== 'pending' && !group.isFull;
   const canSeePrivateTools = isMember || isCreator;
 
@@ -138,8 +209,12 @@ const GroupDetailPage = () => {
               <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">Access</h2>
                 {canRequest && (
-                  <button onClick={handleRequestJoin} disabled={loading} className="btn-primary w-full">
-                    Request to Join
+                  <button
+                    onClick={group.visibility === 'public' ? handleJoin : handleRequestJoin}
+                    disabled={loading}
+                    className="btn-primary w-full"
+                  >
+                    {group.visibility === 'public' ? 'Join Group' : 'Request to Join'}
                   </button>
                 )}
                 {group.requestStatus === 'pending' && (
@@ -164,6 +239,33 @@ const GroupDetailPage = () => {
                   onReject={handleReject}
                   loading={loading}
                 />
+
+                <div className="card p-4 md:p-8 border-l-4 border-l-purple-600">
+                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">➕ Add Member</h2>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const email = e.target.email.value.trim();
+                      if (email) {
+                        handleInvite(email);
+                        e.target.reset();
+                      }
+                    }}
+                    className="flex flex-col md:flex-row gap-3"
+                  >
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      placeholder="Enter student email..."
+                      className="input-field flex-1"
+                    />
+                    <button type="submit" disabled={loading} className="btn-primary">
+                      Add Student
+                    </button>
+                  </form>
+                </div>
+
                 <div className="card p-4 md:p-8 border-l-4 border-l-blue-600">
                   <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">Transfer Ownership</h2>
                   <div className="flex flex-col md:flex-row gap-3">
@@ -174,7 +276,7 @@ const GroupDetailPage = () => {
                     >
                       <option value="">Select a member</option>
                       {group.members
-                        .filter((member) => (member._id || member.id) !== userId)
+                        .filter((member) => !sameId(member, userId))
                         .map((member) => (
                           <option key={member._id || member.id} value={member._id || member.id}>
                             {member.name}
@@ -189,8 +291,14 @@ const GroupDetailPage = () => {
               </>
             )}
 
-            {canSeePrivateTools && <MemberList members={group.members} />}
-            <GroupChat group={group} />
+            {canSeePrivateTools && (
+              <MemberList
+                members={group.members}
+                onKick={isCreator ? handleKick : null}
+                ownerId={group.createdBy?._id || group.createdBy}
+              />
+            )}
+            {canSeePrivateTools && <GroupChat group={group} />}
           </>
         ) : (
           <div className="card p-4 md:p-8">

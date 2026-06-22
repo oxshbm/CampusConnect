@@ -4,6 +4,9 @@ import { useGroups } from '../../hooks/useGroups';
 import Spinner from '../common/Spinner';
 import { useState } from 'react';
 
+const toId = (value) => value?._id || value?.id || value;
+const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
+
 const GroupDashboard = ({ group }) => {
   const { user } = useAuth();
   const { leaveExistingGroup, deleteExistingGroup, loading } = useGroups();
@@ -11,9 +14,10 @@ const GroupDashboard = ({ group }) => {
   const [error, setError] = useState('');
 
   const userId = user?.id || user?._id;
-  const isCreator = Boolean(group.isOwner || group.isCreator || (userId && group.createdBy?._id === userId));
-  const isMember = Boolean(group.isMember || (userId && group.members.some((m) => (m._id || m.id || m) === userId)));
-  const memberCount = group.memberCount ?? group.members.length;
+  const members = group.members || [];
+  const isCreator = Boolean(group.isOwner || group.isCreator || (userId && sameId(group.createdBy, userId)));
+  const isMember = Boolean(group.isMember || (userId && members.some((member) => sameId(member, userId))));
+  const memberCount = group.memberCount ?? members.length;
 
   const handleLeave = async () => {
     if (!window.confirm('Are you sure you want to leave this group?')) return;
@@ -73,11 +77,11 @@ const GroupDashboard = ({ group }) => {
         </p>
       )}
 
-      {group.tags.length > 0 && (
+      {(group.tags || []).length > 0 && (
         <div className="mb-6">
           <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 mb-3">🏷️ Tags:</p>
           <div className="flex flex-wrap gap-2">
-            {group.tags.map((tag) => (
+            {(group.tags || []).map((tag) => (
               <span key={tag} className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-sm px-4 py-2 rounded-full font-medium">
                 {tag}
               </span>

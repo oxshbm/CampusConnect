@@ -6,6 +6,8 @@ import { useAuth } from '../../hooks/useAuth';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const SOCKET_URL = API_URL.replace(/\/api\/?$/, '');
+const toId = (value) => value?._id || value?.id || value;
+const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
 
 const GroupChat = ({ group }) => {
   const { user } = useAuth();
@@ -18,8 +20,8 @@ const GroupChat = ({ group }) => {
   const bottomRef = useRef(null);
 
   const currentUserId = user?.id || user?._id;
-  const memberIds = useMemo(() => group.members.map((member) => member._id || member.id || member), [group.members]);
-  const canChat = currentUserId && memberIds.includes(currentUserId);
+  const memberIds = useMemo(() => (group.members || []).map((member) => toId(member)), [group.members]);
+  const canChat = currentUserId && memberIds.some((memberId) => sameId(memberId, currentUserId));
 
   useEffect(() => {
     if (!canChat) return undefined;
@@ -43,7 +45,7 @@ const GroupChat = ({ group }) => {
     socket.on('disconnect', () => setConnected(false));
     socket.on('connect_error', (err) => setError(err.message));
     socket.on('group:message', (message) => {
-      if ((message.group?._id || message.group) !== group._id) return;
+      if (!sameId(message.group, group._id)) return;
       setMessages((prev) => (prev.some((item) => item._id === message._id) ? prev : [...prev, message]));
     });
 
@@ -115,7 +117,7 @@ const GroupChat = ({ group }) => {
         )}
         {messages.map((message) => {
           const senderId = message.sender?._id || message.sender;
-          const mine = senderId === currentUserId;
+          const mine = sameId(senderId, currentUserId);
           return (
             <div key={message._id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] rounded-lg px-4 py-2 ${mine ? 'bg-purple-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700'}`}>

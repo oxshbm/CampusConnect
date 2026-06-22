@@ -25,6 +25,8 @@ const ProjectDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
 
+  const isCreator = user && project && project.createdBy && project.createdBy._id === user.id;
+
   const loadProjectData = async () => {
     const projectData = await fetchProjectById(id);
     setProject(projectData);
@@ -44,8 +46,6 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     loadApplications();
   }, [id, isCreator]);
-
-  const isCreator = user && project && project.createdBy && project.createdBy._id === user.id;
 
   const handleUpdate = async (formData) => {
     try {
