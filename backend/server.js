@@ -42,13 +42,20 @@ const validateEnvironment = () => {
 };
 
 // Middleware
-const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.trim() : '';
-const clientUrlNoSlash = clientUrl.replace(/\/$/, '');
-const clientUrlWithSlash = `${clientUrlNoSlash}/`;
+const getClientOrigin = (urlStr) => {
+  if (!urlStr) return '';
+  try {
+    const formatted = urlStr.trim().startsWith('http') ? urlStr.trim() : `https://${urlStr.trim()}`;
+    return new URL(formatted).origin;
+  } catch (error) {
+    return urlStr.trim().replace(/\/$/, '');
+  }
+};
 
+const clientOrigin = getClientOrigin(process.env.CLIENT_URL);
 const allowedOrigins = [
-  clientUrlNoSlash,
-  clientUrlWithSlash,
+  clientOrigin,
+  clientOrigin ? `${clientOrigin}/` : null,
   'http://localhost:5173',
   'http://localhost:5173/',
   'http://localhost:5174',
