@@ -4,6 +4,7 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
+const seedHardcodedAdmin = require('./utils/seedHardcodedAdmin');
 const registerGroupChat = require('./socket/groupChat');
 const registerProjectChat = require('./socket/projectChat');
 
@@ -123,6 +124,7 @@ const startServer = async () => {
   try {
     validateEnvironment();
     await connectDB();
+    await seedHardcodedAdmin();
 
     const server = httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

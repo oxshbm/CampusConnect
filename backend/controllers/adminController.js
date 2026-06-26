@@ -5,6 +5,7 @@ const GroupMessage = require('../models/GroupMessage');
 const Event = require('../models/Event');
 const Club = require('../models/Club');
 const ClubPost = require('../models/ClubPost');
+const bcrypt = require('bcryptjs');
 
 const getStats = async (req, res) => {
   try {
@@ -375,6 +376,74 @@ const deleteAdminClub = async (req, res) => {
   }
 };
 
+const createAdmin = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Name, email, and password are required' });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAdmin = new User({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      course: 'Administration',
+      year: 1,
+      role: 'admin',
+      isVerified: true,
+    });
+
+    await newAdmin.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin user created successfully',
+      data: {
+        id: newAdmin._id,
+        name: newAdmin.name,
+        email: newAdmin.email,
+        role: newAdmin.role,
+        createdAt: newAdmin.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('CreateAdmin error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create admin user' });
+  }
+};
+
+const getAllAdmins = async (req, res) => {
+  try {
+    const admins = await User.find({ role: 'admin' })
+      .select('-password')
+      .sort('-createdAt');
+
+    const formattedAdmins = admins.map((admin) => ({
+      id: admin._id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      createdAt: admin.createdAt,
+    }));
+
+    res.json({
+      success: true,
+      data: formattedAdmins,
+    });
+  } catch (error) {
+    console.error('GetAllAdmins error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch admin users' });
+  }
+};
+
 module.exports = {
   getStats,
   getAllUsers,
@@ -391,4 +460,6 @@ module.exports = {
   approveClub,
   denyClub,
   deleteAdminClub,
+  createAdmin,
+  getAllAdmins,
 };

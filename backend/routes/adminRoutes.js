@@ -17,6 +17,8 @@ const {
   approveClub,
   denyClub,
   deleteAdminClub,
+  createAdmin,
+  getAllAdmins,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -32,6 +34,10 @@ router.get('/users', getAllUsers);
 router.put('/users/:id/ban', banUser);
 router.put('/users/:id/unban', unbanUser);
 router.delete('/users/:id', deleteUser);
+
+// Admins management
+router.get('/admins', getAllAdmins);
+router.post('/create-admin', createAdmin);
 
 // Groups management
 router.get('/groups', getAllGroups);

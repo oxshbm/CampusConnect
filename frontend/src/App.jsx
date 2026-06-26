@@ -24,6 +24,7 @@ import ClubDetailPage from './pages/ClubDetailPage';
 import AlumniConnectPage from './pages/AlumniConnectPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminManagement from './pages/admin/AdminManagement';
 import AdminGroups from './pages/admin/AdminGroups';
 import AdminProjects from './pages/admin/AdminProjects';
 import AdminEvents from './pages/admin/AdminEvents';
@@ -70,6 +71,7 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/admins" element={<AdminManagement />} />
               <Route path="/admin/groups" element={<AdminGroups />} />
               <Route path="/admin/projects" element={<AdminProjects />} />
               <Route path="/admin/events" element={<AdminEvents />} />

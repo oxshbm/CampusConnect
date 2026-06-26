@@ -59,3 +59,11 @@ export const denyClub = async (id) => {
 export const deleteAdminClub = async (id) => {
   return axiosInstance.delete(`/admin/clubs/${id}`);
 };
+
+export const getAllAdmins = async () => {
+  return axiosInstance.get('/admin/admins');
+};
+
+export const createAdmin = async (name, email, password) => {
+  return axiosInstance.post('/admin/create-admin', { name, email, password });
+};

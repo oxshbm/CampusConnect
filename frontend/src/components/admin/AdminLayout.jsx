@@ -86,6 +86,16 @@ const AdminLayout = () => {
               👥 Users
             </Link>
             <Link
+              to="/admin/admins"
+              className={`py-4 px-1 border-b-2 font-medium transition-colors ${
+                isActive('/admin/admins')
+                  ? 'border-red-600 text-red-600 dark:text-red-500'
+                  : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              🛡️ Admins
+            </Link>
+            <Link
               to="/admin/groups"
               className={`py-4 px-1 border-b-2 font-medium transition-colors ${
                 isActive('/admin/groups')

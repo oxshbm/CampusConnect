@@ -66,10 +66,18 @@ const login = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email, password, and role required' });
     }
 
-    // Find user (password verification skipped for v1)
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Find user (password verification skipped for student/alumni in v1, enforced for admin)
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'User not found. Please sign up first.' });
+    }
+
+    // Enforce password verification for admins
+    if (user.role === 'admin') {
+      const isPasswordMatch = await bcrypt.compare(password, user.password);
+      if (!isPasswordMatch) {
+        return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+      }
     }
 
     // Check if user is banned
