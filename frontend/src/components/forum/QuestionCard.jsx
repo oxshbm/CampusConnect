@@ -1,28 +1,26 @@
-import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { voteOnQuestion } from '../../api/forumApi';
-import CommentSection from './CommentSection';
+import PollDisplay from './PollDisplay';
 
 const toId = (value) => value?._id || value?.id || value;
 const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
 
-const QuestionCard = ({ question, onVote, onDelete }) => {
+const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, votePoll, onSelect }) => {
   const { user } = useAuth();
   const userId = toId(user);
-  const [expanded, setExpanded] = useState(false);
   const isOwner = Boolean(userId && sameId(question.createdBy?._id || question.createdBy, userId));
 
   const upvoteCount = question.upvoteCount ?? question.upvotes?.length ?? 0;
   const downvoteCount = question.downvoteCount ?? question.downvotes?.length ?? 0;
   const hasUpvoted = question.hasUpvoted;
   const hasDownvoted = question.hasDownvoted;
+  const isBookmarked = question.isBookmarked;
   const tags = question.tags || [];
 
   const handleVote = async (voteType) => {
-    if (!user) return;
+    if (!user || !voteOnQuestion) return;
     try {
-      const res = await voteOnQuestion(question._id, voteType);
-      if (onVote) onVote(question._id, res.data);
+      const data = await voteOnQuestion(question._id, voteType);
+      if (onVote) onVote(question._id, data);
     } catch (err) {
       console.error('Vote failed:', err);
     }
@@ -30,6 +28,26 @@ const QuestionCard = ({ question, onVote, onDelete }) => {
 
   const handleDelete = () => {
     if (onDelete) onDelete(question._id);
+  };
+
+  const handleBookmark = async () => {
+    if (!user || !onBookmark) return;
+    try {
+      const data = await onBookmark(question._id);
+      if (onVote) onVote(question._id, { isBookmarked: data.isBookmarked });
+    } catch (err) {
+      console.error('Bookmark failed:', err);
+    }
+  };
+
+  const handlePollVote = async (optionIndex) => {
+    if (!user || !votePoll || !onVote) return;
+    try {
+      const data = await votePoll(question._id, optionIndex);
+      if (onVote) onVote(question._id, { pollHasVoted: true, pollSelectedOption: optionIndex, pollTotalVotes: data.totalVotes });
+    } catch (err) {
+      console.error('Poll vote failed:', err);
+    }
   };
 
   const timeAgo = (date) => {
@@ -47,21 +65,21 @@ const QuestionCard = ({ question, onVote, onDelete }) => {
   return (
     <div className="card p-0 hover:shadow-xl dark:hover:shadow-purple-900/50 hover:border-purple-200 dark:hover:border-purple-700 transition-all duration-300">
       <div className="flex">
-        <div className="flex flex-col items-center gap-1 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-l-lg min-w-[60px]">
+        <div className="flex flex-col items-center gap-1 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-l-lg min-w-[72px]">
           <button
             onClick={() => handleVote('up')}
             disabled={!user}
-            className={`text-lg leading-none transition-colors ${hasUpvoted ? 'text-purple-600 dark:text-purple-400' : 'text-zinc-400 dark:text-zinc-500 hover:text-purple-600 dark:hover:text-purple-400'} disabled:opacity-40 disabled:cursor-not-allowed`}
+            className={`text-2xl leading-none transition-colors ${hasUpvoted ? 'text-purple-600 dark:text-purple-400' : 'text-zinc-400 dark:text-zinc-500 hover:text-purple-600 dark:hover:text-purple-400'} disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             ▲
           </button>
-          <span className={`text-sm font-bold ${upvoteCount - downvoteCount > 0 ? 'text-purple-600 dark:text-purple-400' : upvoteCount - downvoteCount < 0 ? 'text-red-500 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
+          <span className={`text-base font-bold ${upvoteCount - downvoteCount > 0 ? 'text-purple-600 dark:text-purple-400' : upvoteCount - downvoteCount < 0 ? 'text-red-500 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`}>
             {upvoteCount - downvoteCount}
           </span>
           <button
             onClick={() => handleVote('down')}
             disabled={!user}
-            className={`text-lg leading-none transition-colors ${hasDownvoted ? 'text-red-500 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400'} disabled:opacity-40 disabled:cursor-not-allowed`}
+            className={`text-2xl leading-none transition-colors ${hasDownvoted ? 'text-red-500 dark:text-red-400' : 'text-zinc-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400'} disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             ▼
           </button>
@@ -70,28 +88,38 @@ const QuestionCard = ({ question, onVote, onDelete }) => {
         <div className="flex-1 p-4 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="text-left w-full"
-              >
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors line-clamp-2">
+              <div onClick={() => onSelect(question)} className="cursor-pointer">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white line-clamp-2">
                   {question.title}
                 </h3>
-              </button>
+              </div>
             </div>
-            {isOwner && (
-              <button
-                onClick={handleDelete}
-                className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors shrink-0 text-sm"
-              >
-                🗑️
-              </button>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              {user && (
+                <button
+                  onClick={handleBookmark}
+                  className={`text-lg transition-colors ${isBookmarked ? 'text-yellow-500' : 'text-zinc-400 dark:text-zinc-500 hover:text-yellow-500'}`}
+                  title={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+                >
+                  {isBookmarked ? '⭐' : '☆'}
+                </button>
+              )}
+              {isOwner && (
+                <button
+                  onClick={handleDelete}
+                  className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-sm"
+                >
+                  🗑️
+                </button>
+              )}
+            </div>
           </div>
 
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">
-            {question.content}
-          </p>
+          <div onClick={() => onSelect(question)} className="cursor-pointer">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">
+              {question.content}
+            </p>
+          </div>
 
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
@@ -106,26 +134,26 @@ const QuestionCard = ({ question, onVote, onDelete }) => {
             </div>
           )}
 
+          {question.poll && (
+            <PollDisplay
+              poll={question.poll}
+              hasVoted={question.pollHasVoted}
+              selectedOption={question.pollSelectedOption}
+              totalVotes={question.pollTotalVotes}
+              isExpired={question.pollIsExpired}
+              onVote={handlePollVote}
+            />
+          )}
+
           <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500 dark:text-zinc-400">
             <span>Posted by {question.createdBy?.name || 'Unknown'} {timeAgo(question.createdAt)}</span>
             <button
-              onClick={() => setExpanded(!expanded)}
-              className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+              onClick={() => onSelect(question)}
+              className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-xs font-medium"
             >
-              💬 {question.commentCount ?? 0} comments
+              💬 Comments
             </button>
           </div>
-
-          {expanded && (
-            <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-              <CommentSection
-                questionId={question._id}
-                onCommentCountChange={(delta) => {
-                  if (onVote) onVote(question._id, { commentCount: (question.commentCount ?? 0) + delta });
-                }}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>

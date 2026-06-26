@@ -6,6 +6,10 @@ const {
   voteOnQuestion,
   deleteQuestion,
   addComment,
+  getComments,
+  toggleBookmark,
+  votePoll,
+  likeComment,
   deleteComment,
 } = require('../controllers/forumController');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -32,8 +36,12 @@ router.get('/', optionalAuth, getQuestions);
 router.get('/:id', optionalAuth, getQuestion);
 router.post('/', authMiddleware, createQuestion);
 router.post('/:id/vote', authMiddleware, voteOnQuestion);
+router.post('/:id/bookmark', authMiddleware, toggleBookmark);
+router.post('/:id/poll/vote', authMiddleware, votePoll);
 router.delete('/:id', authMiddleware, deleteQuestion);
+router.get('/:id/comments', optionalAuth, getComments);
 router.post('/:id/comments', authMiddleware, addComment);
+router.post('/comments/:commentId/like', authMiddleware, likeComment);
 router.delete('/comments/:commentId', authMiddleware, deleteComment);
 
 module.exports = router;

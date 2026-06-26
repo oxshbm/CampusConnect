@@ -1,12 +1,30 @@
 import { useState } from 'react';
-import { createQuestion } from '../../api/forumApi';
 
-const CreateQuestionModal = ({ onClose, onCreated }) => {
+const CreateQuestionModal = ({ onClose, onCreated, createQuestion }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasPoll, setHasPoll] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptions, setPollOptions] = useState(['', '']);
+
+  const handleAddOption = () => {
+    if (pollOptions.length >= 10) return;
+    setPollOptions([...pollOptions, '']);
+  };
+
+  const handleRemoveOption = (idx) => {
+    if (pollOptions.length <= 2) return;
+    setPollOptions(pollOptions.filter((_, i) => i !== idx));
+  };
+
+  const handleOptionChange = (idx, value) => {
+    const updated = [...pollOptions];
+    updated[idx] = value;
+    setPollOptions(updated);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,6 +32,19 @@ const CreateQuestionModal = ({ onClose, onCreated }) => {
       setError('Title and content are required');
       return;
     }
+
+    if (hasPoll) {
+      if (!pollQuestion.trim()) {
+        setError('Poll question is required');
+        return;
+      }
+      const validOptions = pollOptions.filter((o) => o.trim());
+      if (validOptions.length < 2) {
+        setError('Poll must have at least 2 options');
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       setError('');
@@ -21,7 +52,17 @@ const CreateQuestionModal = ({ onClose, onCreated }) => {
         .split(',')
         .map((t) => t.trim().toLowerCase())
         .filter(Boolean);
-      await createQuestion({ title: title.trim(), content: content.trim(), tags });
+
+      const payload = { title: title.trim(), content: content.trim(), tags };
+
+      if (hasPoll) {
+        payload.poll = {
+          question: pollQuestion.trim(),
+          options: pollOptions.filter((o) => o.trim()).map((text) => ({ text: text.trim() })),
+        };
+      }
+
+      await createQuestion(payload);
       if (onCreated) onCreated();
       onClose();
     } catch (err) {
@@ -95,6 +136,72 @@ const CreateQuestionModal = ({ onClose, onCreated }) => {
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Separate tags with commas</p>
           </div>
+
+          <div className="flex items-center gap-3 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasPoll}
+                onChange={(e) => setHasPoll(e.target.checked)}
+                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+              />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Add a Poll</span>
+            </label>
+          </div>
+
+          {hasPoll && (
+            <div className="space-y-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
+              <div>
+                <label className="label">Poll Question</label>
+                <input
+                  type="text"
+                  value={pollQuestion}
+                  onChange={(e) => setPollQuestion(e.target.value)}
+                  placeholder="What's the poll about?"
+                  className="input-field w-full"
+                  maxLength={500}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="label">Options</label>
+                {pollOptions.map((option, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={option}
+                      onChange={(e) => handleOptionChange(idx, e.target.value)}
+                      placeholder={`Option ${idx + 1}`}
+                      className="input-field flex-1 text-sm"
+                      maxLength={200}
+                    />
+                    {pollOptions.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveOption(idx)}
+                        className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 text-lg"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {pollOptions.length < 10 && (
+                <button
+                  type="button"
+                  onClick={handleAddOption}
+                  className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+                >
+                  + Add option
+                </button>
+              )}
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Poll expires 10 days after posting. One vote per person.
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-2">
             <button

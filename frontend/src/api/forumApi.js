@@ -29,12 +29,34 @@ export const deleteQuestion = async (id) => {
   return response.data;
 };
 
-export const addComment = async (questionId, content) => {
-  const response = await axiosInstance.post(`/forum/${questionId}/comments`, { content });
+export const getComments = async (questionId) => {
+  const response = await axiosInstance.get(`/forum/${questionId}/comments`);
+  return response.data;
+};
+
+export const addComment = async (questionId, content, parent = null) => {
+  const payload = { content };
+  if (parent) payload.parent = parent;
+  const response = await axiosInstance.post(`/forum/${questionId}/comments`, payload);
   return response.data;
 };
 
 export const deleteComment = async (commentId) => {
   const response = await axiosInstance.delete(`/forum/comments/${commentId}`);
+  return response.data;
+};
+
+export const toggleBookmark = async (id) => {
+  const response = await axiosInstance.post(`/forum/${id}/bookmark`);
+  return response.data;
+};
+
+export const votePoll = async (id, optionIndex) => {
+  const response = await axiosInstance.post(`/forum/${id}/poll/vote`, { optionIndex });
+  return response.data;
+};
+
+export const likeComment = async (commentId) => {
+  const response = await axiosInstance.post(`/forum/comments/${commentId}/like`);
   return response.data;
 };

@@ -41,6 +41,22 @@ const questionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    bookmarkedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    poll: {
+      question: { type: String, maxlength: 500 },
+      options: [
+        {
+          text: { type: String, required: true, maxlength: 200 },
+          votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+        },
+      ],
+      expiresAt: { type: Date },
+    },
   },
   { timestamps: true }
 );

@@ -1,38 +1,33 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { getQuestions, deleteQuestion } from '../api/forumApi';
+import { useForum } from '../hooks/useForum';
 import QuestionCard from '../components/forum/QuestionCard';
+import QuestionDetailModal from '../components/forum/QuestionDetailModal';
 import CreateQuestionModal from '../components/forum/CreateQuestionModal';
 import Spinner from '../components/common/Spinner';
 
 const ForumPage = () => {
   const { user } = useAuth();
+  const { loading, fetchQuestions, fetchComments, voteOnQuestion, deleteQuestion, addComment, deleteComment, createQuestion, toggleBookmark, votePoll, likeComment } = useForum();
   const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState('');
   const [sort, setSort] = useState('newest');
   const [showModal, setShowModal] = useState(false);
   const [allTags, setAllTags] = useState([]);
+  const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   const loadQuestions = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = { sort };
-      if (search.trim()) params.q = search.trim();
-      if (activeTag) params.tag = activeTag;
-      const res = await getQuestions(params);
-      const data = res.data || [];
-      setQuestions(data);
-      const tags = [...new Set(data.flatMap((q) => q.tags || []))].sort();
-      setAllTags(tags);
-    } catch (err) {
-      console.error('Failed to load questions:', err);
-      setQuestions([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, activeTag, sort]);
+    const params = { sort };
+    if (search.trim()) params.q = search.trim();
+    if (activeTag) params.tag = activeTag;
+    if (bookmarkedOnly && user) params.bookmarked = 'true';
+    const data = await fetchQuestions(params);
+    setQuestions(data);
+    const tags = [...new Set(data.flatMap((q) => q.tags || []))].sort();
+    setAllTags(tags);
+  }, [search, activeTag, sort, bookmarkedOnly, user, fetchQuestions]);
 
   useEffect(() => {
     loadQuestions();
@@ -54,6 +49,10 @@ const ForumPage = () => {
               hasUpvoted: updated.hasUpvoted ?? q.hasUpvoted,
               hasDownvoted: updated.hasDownvoted ?? q.hasDownvoted,
               commentCount: updated.commentCount ?? q.commentCount,
+              isBookmarked: updated.isBookmarked ?? q.isBookmarked,
+              pollHasVoted: updated.pollHasVoted ?? q.pollHasVoted,
+              pollSelectedOption: updated.pollSelectedOption ?? q.pollSelectedOption,
+              pollTotalVotes: updated.pollTotalVotes ?? q.pollTotalVotes,
             }
           : q
       )
@@ -67,6 +66,16 @@ const ForumPage = () => {
     } catch (err) {
       console.error('Failed to delete question:', err);
     }
+  };
+
+  const handleBookmark = async (questionId) => {
+    const data = await toggleBookmark(questionId);
+    handleVote(questionId, { isBookmarked: data.isBookmarked });
+    return data;
+  };
+
+  const handleLikeComment = async (commentId) => {
+    return await likeComment(commentId);
   };
 
   return (
@@ -86,7 +95,7 @@ const ForumPage = () => {
               onClick={() => setShowModal(true)}
               className="btn-primary bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700"
             >
-              💬 Ask Question
+              New Post
             </button>
           )}
         </div>
@@ -100,65 +109,55 @@ const ForumPage = () => {
               placeholder="Search questions..."
               className="input-field flex-1"
             />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="input-field w-auto px-3 py-3 text-sm"
+            >
+              <option value="newest">Latest</option>
+              <option value="votes">Most Upvoted</option>
+            </select>
             <button type="submit" className="btn-primary">
               🔎 Search
             </button>
           </form>
         </div>
 
-        {allTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6 items-center">
+          <button
+            onClick={() => setActiveTag('')}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              !activeTag && !bookmarkedOnly
+                ? 'bg-purple-600 text-white'
+                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+            }`}
+          >
+            All
+          </button>
+          {allTags.map((tag) => (
             <button
-              onClick={() => setActiveTag('')}
+              key={tag}
+              onClick={() => setActiveTag(activeTag === tag ? '' : tag)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                !activeTag
+                activeTag === tag
                   ? 'bg-purple-600 text-white'
                   : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600'
               }`}
             >
-              All
+              {tag}
             </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveTag(activeTag === tag ? '' : tag)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  activeTag === tag
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-4 mb-6 border-b border-zinc-200 dark:border-zinc-700 pb-3">
-          <button
-            onClick={() => setSort('newest')}
-            className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
-              sort === 'newest'
-                ? 'text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400'
-                : 'text-zinc-500 dark:text-zinc-400 border-transparent hover:text-zinc-700 dark:hover:text-zinc-300'
-            }`}
-          >
-            Newest
-          </button>
-          <button
-            onClick={() => setSort('votes')}
-            className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
-              sort === 'votes'
-                ? 'text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400'
-                : 'text-zinc-500 dark:text-zinc-400 border-transparent hover:text-zinc-700 dark:hover:text-zinc-300'
-            }`}
-          >
-            Most Upvoted
-          </button>
-          {questions.length > 0 && (
-            <span className="text-xs text-zinc-500 dark:text-zinc-500 ml-auto self-center">
-              {questions.length} {questions.length === 1 ? 'question' : 'questions'}
-            </span>
+          ))}
+          {user && (
+            <button
+              onClick={() => setBookmarkedOnly(!bookmarkedOnly)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                bookmarkedOnly
+                  ? 'bg-yellow-500 text-white'
+                  : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+              }`}
+            >
+              ⭐ Bookmarked
+            </button>
           )}
         </div>
 
@@ -182,6 +181,10 @@ const ForumPage = () => {
                 question={question}
                 onVote={handleVote}
                 onDelete={handleDelete}
+                voteOnQuestion={voteOnQuestion}
+                onBookmark={handleBookmark}
+                votePoll={votePoll}
+                onSelect={setSelectedQuestion}
               />
             ))}
           </div>
@@ -192,6 +195,24 @@ const ForumPage = () => {
         <CreateQuestionModal
           onClose={() => setShowModal(false)}
           onCreated={loadQuestions}
+          createQuestion={createQuestion}
+        />
+      )}
+
+      {selectedQuestion && (
+        <QuestionDetailModal
+          question={selectedQuestion}
+          onClose={() => setSelectedQuestion(null)}
+          user={user}
+          onVote={handleVote}
+          onDelete={handleDelete}
+          voteOnQuestion={voteOnQuestion}
+          addComment={addComment}
+          deleteComment={deleteComment}
+          fetchComments={fetchComments}
+          onBookmark={handleBookmark}
+          votePoll={votePoll}
+          onLikeComment={handleLikeComment}
         />
       )}
     </div>
