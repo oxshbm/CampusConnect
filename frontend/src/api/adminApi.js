@@ -67,3 +67,19 @@ export const getAllAdmins = async () => {
 export const createAdmin = async (name, email, password) => {
   return axiosInstance.post('/admin/create-admin', { name, email, password });
 };
+
+export const getAllForumPosts = async () => {
+  return axiosInstance.get('/admin/forum/posts');
+};
+
+export const deleteForumPost = async (id) => {
+  return axiosInstance.delete(`/admin/forum/posts/${id}`);
+};
+
+export const getAllComments = async () => {
+  return axiosInstance.get('/admin/forum/comments');
+};
+
+export const deleteComment = async (id) => {
+  return axiosInstance.delete(`/admin/forum/comments/${id}`);
+};

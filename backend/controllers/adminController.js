@@ -5,6 +5,8 @@ const GroupMessage = require('../models/GroupMessage');
 const Event = require('../models/Event');
 const Club = require('../models/Club');
 const ClubPost = require('../models/ClubPost');
+const Question = require('../models/Question');
+const Comment = require('../models/Comment');
 const bcrypt = require('bcryptjs');
 
 const getStats = async (req, res) => {
@@ -13,6 +15,7 @@ const getStats = async (req, res) => {
     const totalGroups = await StudyGroup.countDocuments();
     const bannedUsers = await User.countDocuments({ isBanned: true });
     const totalClubs = await Club.countDocuments({ status: 'approved' });
+    const totalForumPosts = await Question.countDocuments();
 
     res.json({
       success: true,
@@ -21,6 +24,7 @@ const getStats = async (req, res) => {
         totalGroups,
         bannedUsers,
         totalClubs,
+        totalForumPosts,
       },
     });
   } catch (error) {
@@ -376,6 +380,122 @@ const deleteAdminClub = async (req, res) => {
   }
 };
 
+const getAllForumPosts = async (req, res) => {
+  try {
+    const posts = await Question.find()
+      .populate('createdBy', 'name email')
+      .sort('-createdAt');
+
+    const formattedPosts = posts.map((post) => ({
+      id: post._id,
+      title: post.title,
+      content: post.content,
+      tags: post.tags,
+      createdBy: post.createdBy
+        ? {
+            id: post.createdBy._id,
+            name: post.createdBy.name,
+            email: post.createdBy.email,
+          }
+        : null,
+      upvotes: post.upvotes.length,
+      downvotes: post.downvotes.length,
+      commentCount: post.commentCount,
+      createdAt: post.createdAt,
+    }));
+
+    res.json({ success: true, data: formattedPosts });
+  } catch (error) {
+    console.error('GetAllForumPosts error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch forum posts' });
+  }
+};
+
+const deleteForumPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await Question.findById(id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Forum post not found' });
+    }
+
+    await Comment.deleteMany({ question: id });
+    await Question.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: `Forum post "${post.title}" has been deleted.`,
+    });
+  } catch (error) {
+    console.error('DeleteForumPost error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete forum post' });
+  }
+};
+
+const getAllComments = async (req, res) => {
+  try {
+    const comments = await Comment.find()
+      .populate('author', 'name email')
+      .populate('question', 'title')
+      .sort('-createdAt');
+
+    const formattedComments = comments.map((comment) => ({
+      id: comment._id,
+      content: comment.content,
+      author: comment.author
+        ? {
+            id: comment.author._id,
+            name: comment.author.name,
+            email: comment.author.email,
+          }
+        : null,
+      question: comment.question
+        ? {
+            id: comment.question._id,
+            title: comment.question.title,
+          }
+        : null,
+      likes: comment.likes.length,
+      parent: comment.parent,
+      createdAt: comment.createdAt,
+    }));
+
+    res.json({ success: true, data: formattedComments });
+  } catch (error) {
+    console.error('GetAllComments error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch comments' });
+  }
+};
+
+const deleteComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const comment = await Comment.findById(id).populate('question', 'title');
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+
+    // Decrement the parent question's commentCount
+    if (comment.question) {
+      await Question.findByIdAndUpdate(comment.question._id, { $inc: { commentCount: -1 } });
+    }
+
+    // Delete nested replies (comments with this comment as parent)
+    await Comment.deleteMany({ parent: id });
+    await Comment.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Comment has been deleted.',
+    });
+  } catch (error) {
+    console.error('DeleteComment error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete comment' });
+  }
+};
+
 const createAdmin = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -462,4 +582,8 @@ module.exports = {
   deleteAdminClub,
   createAdmin,
   getAllAdmins,
+  getAllForumPosts,
+  deleteForumPost,
+  getAllComments,
+  deleteComment,
 };

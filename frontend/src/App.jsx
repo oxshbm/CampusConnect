@@ -29,6 +29,7 @@ import AdminGroups from './pages/admin/AdminGroups';
 import AdminProjects from './pages/admin/AdminProjects';
 import AdminEvents from './pages/admin/AdminEvents';
 import AdminClubs from './pages/admin/AdminClubs';
+import AdminForum from './pages/admin/AdminForum';
 import AlumniDashboard from './pages/alumni/AlumniDashboard';
 import AlumniProfilePage from './pages/alumni/AlumniProfilePage';
 import AlumniEventsPage from './pages/alumni/AlumniEventsPage';
@@ -76,6 +77,7 @@ function App() {
               <Route path="/admin/projects" element={<AdminProjects />} />
               <Route path="/admin/events" element={<AdminEvents />} />
               <Route path="/admin/clubs" element={<AdminClubs />} />
+              <Route path="/admin/forum" element={<AdminForum />} />
             </Route>
           </Route>
 

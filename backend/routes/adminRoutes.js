@@ -19,6 +19,10 @@ const {
   deleteAdminClub,
   createAdmin,
   getAllAdmins,
+  getAllForumPosts,
+  deleteForumPost,
+  getAllComments,
+  deleteComment,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -54,5 +58,11 @@ router.get('/clubs', getAllAdminClubs);
 router.put('/clubs/:id/approve', approveClub);
 router.put('/clubs/:id/deny', denyClub);
 router.delete('/clubs/:id', deleteAdminClub);
+
+// Forum management
+router.get('/forum/posts', getAllForumPosts);
+router.delete('/forum/posts/:id', deleteForumPost);
+router.get('/forum/comments', getAllComments);
+router.delete('/forum/comments/:id', deleteComment);
 
 module.exports = router;
