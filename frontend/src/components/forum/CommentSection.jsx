@@ -140,7 +140,7 @@ const CommentSection = ({ questionId, fetchComments: fetchCommentsProp, addComme
       }`}
     >
       <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600 dark:text-purple-300 text-sm font-bold shrink-0">
-        {(comment.author?.name || '?')[0].toUpperCase()}
+        {comment.author?.avatar ? comment.author.avatar : (comment.author?.name || '?')[0].toUpperCase()}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
