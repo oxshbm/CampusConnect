@@ -105,7 +105,7 @@ const ProfilePage = () => {
               <div className="card p-6 md:p-8 border-t-4 border-t-purple-600 dark:border-t-purple-500 space-y-6 shadow-md bg-white dark:bg-zinc-800">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-4">
-                    {user?.name?.charAt(0).toUpperCase()}
+                    {user?.avatar ? user.avatar : user?.name?.charAt(0).toUpperCase()}
                   </div>
                   <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">{user?.name}</h2>
                   <span className="inline-block mt-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-full uppercase tracking-wider">
