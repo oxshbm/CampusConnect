@@ -46,7 +46,11 @@ export default function ClubDetailPage() {
   const [postFormError, setPostFormError] = useState('');
   const [postFormLoading, setPostFormLoading] = useState(false);
 
-  const isLeader = user && club && (club.createdBy._id === user.id || club.createdBy._id === user._id);
+  const getCreatorId = (c) => {
+    if (!c || !c.createdBy) return null;
+    return typeof c.createdBy === 'object' ? c.createdBy._id : c.createdBy;
+  };
+  const isLeader = !!(user && club && getCreatorId(club) === user.id);
 
   // Load club and posts
   useEffect(() => {
