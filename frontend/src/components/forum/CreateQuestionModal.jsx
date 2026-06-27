@@ -1,14 +1,17 @@
 import { useState } from 'react';
 
-const CreateQuestionModal = ({ onClose, onCreated, createQuestion }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tagsInput, setTagsInput] = useState('');
+const CreateQuestionModal = ({ question, onClose, onCreated, onUpdated, createQuestion, updateQuestion }) => {
+  const isEditing = Boolean(question);
+  const [title, setTitle] = useState(isEditing ? question.title : '');
+  const [content, setContent] = useState(isEditing ? question.content : '');
+  const [tagsInput, setTagsInput] = useState(isEditing ? (question.tags || []).join(', ') : '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [hasPoll, setHasPoll] = useState(false);
-  const [pollQuestion, setPollQuestion] = useState('');
-  const [pollOptions, setPollOptions] = useState(['', '']);
+  const [hasPoll, setHasPoll] = useState(isEditing ? Boolean(question.poll) : false);
+  const [pollQuestion, setPollQuestion] = useState(isEditing ? (question.poll?.question || '') : '');
+  const [pollOptions, setPollOptions] = useState(isEditing
+    ? (question.poll?.options || []).map((o) => o.text || '')
+    : ['', '']);
 
   const handleAddOption = () => {
     if (pollOptions.length >= 10) return;
@@ -62,11 +65,16 @@ const CreateQuestionModal = ({ onClose, onCreated, createQuestion }) => {
         };
       }
 
-      await createQuestion(payload);
-      if (onCreated) onCreated();
+      if (isEditing) {
+        await updateQuestion(question._id, payload);
+        if (onUpdated) onUpdated();
+      } else {
+        await createQuestion(payload);
+        if (onCreated) onCreated();
+      }
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to create question');
+      setError(err.response?.data?.message || err.message || (isEditing ? 'Failed to update question' : 'Failed to create question'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +92,7 @@ const CreateQuestionModal = ({ onClose, onCreated, createQuestion }) => {
       <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 p-6 flex items-center justify-between">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent">
-            💬 Ask a Question
+            {isEditing ? '✏️ Edit Question' : '💬 Ask a Question'}
           </h2>
           <button
             onClick={onClose}
@@ -137,17 +145,17 @@ const CreateQuestionModal = ({ onClose, onCreated, createQuestion }) => {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Separate tags with commas</p>
           </div>
 
-          <div className="flex items-center gap-3 pt-2 border-t border-zinc-200 dark:border-zinc-700">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={hasPoll}
-                onChange={(e) => setHasPoll(e.target.checked)}
-                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              />
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Add a Poll</span>
-            </label>
-          </div>
+          <button
+            type="button"
+            onClick={() => setHasPoll(!hasPoll)}
+            className={`w-full py-3 px-6 rounded-lg text-lg font-semibold transition-all ${
+              hasPoll
+                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-600'
+                : 'bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 text-white hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 shadow-md hover:shadow-lg'
+            }`}
+          >
+            {hasPoll ? '✕ Remove Poll' : '📊 Add a Poll'}
+          </button>
 
           {hasPoll && (
             <div className="space-y-4 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
@@ -216,7 +224,7 @@ const CreateQuestionModal = ({ onClose, onCreated, createQuestion }) => {
               disabled={loading}
               className="btn-primary bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Posting...' : 'Post Question'}
+              {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Post Question'}
             </button>
           </div>
         </form>

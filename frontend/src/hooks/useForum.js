@@ -52,6 +52,17 @@ export const useForum = () => {
     }
   }, []);
 
+  const updateQuestion = useCallback(async (id, payload) => {
+    setError(null);
+    try {
+      const response = await forumApi.updateQuestion(id, payload);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    }
+  }, []);
+
   const voteOnQuestion = useCallback(async (id, voteType) => {
     setError(null);
     try {
@@ -118,6 +129,17 @@ export const useForum = () => {
     }
   }, []);
 
+  const updateComment = useCallback(async (commentId, payload) => {
+    setError(null);
+    try {
+      const response = await forumApi.updateComment(commentId, payload);
+      return response.data;
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+      throw err;
+    }
+  }, []);
+
   const likeComment = useCallback(async (commentId) => {
     setError(null);
     try {
@@ -136,10 +158,12 @@ export const useForum = () => {
     fetchQuestion,
     fetchComments,
     createQuestion,
+    updateQuestion,
     voteOnQuestion,
     deleteQuestion,
     addComment,
     deleteComment,
+    updateComment,
     toggleBookmark,
     votePoll,
     likeComment,

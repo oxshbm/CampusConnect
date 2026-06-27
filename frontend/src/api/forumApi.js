@@ -19,6 +19,11 @@ export const createQuestion = async (payload) => {
   return response.data;
 };
 
+export const updateQuestion = async (id, payload) => {
+  const response = await axiosInstance.put(`/forum/${id}`, payload);
+  return response.data;
+};
+
 export const voteOnQuestion = async (id, voteType) => {
   const response = await axiosInstance.post(`/forum/${id}/vote`, { voteType });
   return response.data;
@@ -38,6 +43,11 @@ export const addComment = async (questionId, content, parent = null) => {
   const payload = { content };
   if (parent) payload.parent = parent;
   const response = await axiosInstance.post(`/forum/${questionId}/comments`, payload);
+  return response.data;
+};
+
+export const updateComment = async (commentId, payload) => {
+  const response = await axiosInstance.put(`/forum/comments/${commentId}`, payload);
   return response.data;
 };
 

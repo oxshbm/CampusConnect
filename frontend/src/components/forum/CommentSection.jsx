@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 const toId = (value) => value?._id || value?.id || value;
 const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
 
-const CommentSection = ({ questionId, fetchComments: fetchCommentsProp, addComment: addCommentProp, deleteComment: deleteCommentProp, onLikeComment: onLikeCommentProp, onCommentCountChange }) => {
+const CommentSection = ({ questionId, fetchComments: fetchCommentsProp, addComment: addCommentProp, deleteComment: deleteCommentProp, updateComment: updateCommentProp, onLikeComment: onLikeCommentProp, onCommentCountChange }) => {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -12,6 +12,9 @@ const CommentSection = ({ questionId, fetchComments: fetchCommentsProp, addComme
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
     loadComments();
@@ -74,6 +77,31 @@ const CommentSection = ({ questionId, fetchComments: fetchCommentsProp, addComme
     }
   };
 
+  const handleStartEdit = (comment) => {
+    setEditingId(comment._id);
+    setEditContent(comment.content);
+    setMenuOpenId(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditContent('');
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    if (!editContent.trim()) return;
+    try {
+      const data = await updateCommentProp(commentId, { content: editContent.trim() });
+      setComments((prev) =>
+        prev.map((c) => (c._id === commentId ? { ...c, content: data.content || editContent.trim() } : c))
+      );
+      setEditingId(null);
+      setEditContent('');
+    } catch (err) {
+      console.error('Failed to update comment:', err);
+    }
+  };
+
   const handleLike = async (commentId) => {
     if (!user || !onLikeCommentProp) return;
     try {
@@ -125,15 +153,62 @@ const CommentSection = ({ questionId, fetchComments: fetchCommentsProp, addComme
             </span>
           </div>
           {user && sameId(comment.author?._id || comment.author, user) && (
-            <button
-              onClick={() => handleDelete(comment._id)}
-              className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 text-xs transition-colors"
-            >
-              🗑️
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpenId(menuOpenId === comment._id ? null : comment._id)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 text-lg leading-none px-0.5 transition-colors"
+              >
+                ⋯
+              </button>
+              {menuOpenId === comment._id && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
+                  <div className="absolute right-0 top-full mt-1 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1 min-w-[130px] z-50">
+                    <button
+                      onClick={() => handleStartEdit(comment)}
+                      className="w-full text-left px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => { setMenuOpenId(null); handleDelete(comment._id); }}
+                      className="w-full text-left px-3 py-2 text-xs text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300 mt-1">{comment.content}</p>
+        {editingId === comment._id ? (
+          <div className="mt-1 space-y-2">
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="input-field w-full text-sm min-h-[60px] resize-y"
+              maxLength={2000}
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleSaveEdit(comment._id)}
+                className="btn-primary text-xs px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                className="text-xs px-3 py-1.5 rounded-lg font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-zinc-700 dark:text-zinc-300 mt-1">{comment.content}</p>
+        )}
 
         <div className="flex items-center gap-3 mt-2">
           {user && (

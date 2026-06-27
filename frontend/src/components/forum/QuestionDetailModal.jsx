@@ -5,7 +5,7 @@ import PollDisplay from './PollDisplay';
 const toId = (value) => value?._id || value?.id || value;
 const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
 
-const QuestionDetailModal = ({ question, onClose, user, onVote, onDelete, voteOnQuestion, addComment, deleteComment, fetchComments, onBookmark, votePoll, onLikeComment }) => {
+const QuestionDetailModal = ({ question, onClose, user, onVote, onDelete, voteOnQuestion, addComment, deleteComment, updateComment, fetchComments, onBookmark, votePoll, onLikeComment }) => {
   const userId = toId(user);
   const isOwner = Boolean(userId && sameId(question.createdBy?._id || question.createdBy, userId));
 
@@ -45,7 +45,7 @@ const QuestionDetailModal = ({ question, onClose, user, onVote, onDelete, voteOn
     if (!user || !votePoll || !onVote) return;
     try {
       const data = await votePoll(question._id, optionIndex);
-      if (onVote) onVote(question._id, { pollHasVoted: true, pollSelectedOption: optionIndex, pollTotalVotes: data.totalVotes });
+      if (onVote) onVote(question._id, { pollHasVoted: true, pollSelectedOption: optionIndex, pollTotalVotes: data.totalVotes, pollOptions: data.options });
     } catch (err) {
       console.error('Poll vote failed:', err);
     }
@@ -112,7 +112,7 @@ const QuestionDetailModal = ({ question, onClose, user, onVote, onDelete, voteOn
                 <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                   <span>Posted by {question.createdBy?.name || 'Unknown'} {timeAgo(question.createdAt)}</span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                {/* <div className="flex items-center gap-2 shrink-0">
                   {user && (
                     <button
                       onClick={handleBookmark}
@@ -122,15 +122,8 @@ const QuestionDetailModal = ({ question, onClose, user, onVote, onDelete, voteOn
                       {isBookmarked ? '⭐' : '☆'}
                     </button>
                   )}
-                  {isOwner && (
-                    <button
-                      onClick={handleDelete}
-                      className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-sm"
-                    >
-                      🗑️
-                    </button>
-                  )}
-                </div>
+
+                </div> */}
               </div>
 
               <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
@@ -167,6 +160,7 @@ const QuestionDetailModal = ({ question, onClose, user, onVote, onDelete, voteOn
                   fetchComments={fetchComments}
                   addComment={addComment}
                   deleteComment={deleteComment}
+                  updateComment={updateComment}
                   onLikeComment={onLikeComment}
                   onCommentCountChange={(delta) => {
                     if (onVote) onVote(question._id, { commentCount: (question.commentCount ?? 0) + delta });

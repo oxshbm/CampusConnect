@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import PollDisplay from './PollDisplay';
 
 const toId = (value) => value?._id || value?.id || value;
 const sameId = (a, b) => toId(a)?.toString() === toId(b)?.toString();
 
-const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, votePoll, onSelect }) => {
+const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, votePoll, onSelect, onEdit }) => {
   const { user } = useAuth();
   const userId = toId(user);
   const isOwner = Boolean(userId && sameId(question.createdBy?._id || question.createdBy, userId));
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const upvoteCount = question.upvoteCount ?? question.upvotes?.length ?? 0;
   const downvoteCount = question.downvoteCount ?? question.downvotes?.length ?? 0;
@@ -44,7 +46,7 @@ const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, 
     if (!user || !votePoll || !onVote) return;
     try {
       const data = await votePoll(question._id, optionIndex);
-      if (onVote) onVote(question._id, { pollHasVoted: true, pollSelectedOption: optionIndex, pollTotalVotes: data.totalVotes });
+      if (onVote) onVote(question._id, { pollHasVoted: true, pollSelectedOption: optionIndex, pollTotalVotes: data.totalVotes, pollOptions: data.options });
     } catch (err) {
       console.error('Poll vote failed:', err);
     }
@@ -105,12 +107,33 @@ const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, 
                 </button>
               )}
               {isOwner && (
-                <button
-                  onClick={handleDelete}
-                  className="text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-sm"
-                >
-                  🗑️
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 text-2xl leading-none px-1 transition-colors"
+                  >
+                    ⋯
+                  </button>
+                  {menuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                      <div className="absolute right-0 top-full mt-1 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1 min-w-[150px] z-50">
+                        <button
+                          onClick={() => { setMenuOpen(false); onEdit(question); }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2"
+                        >
+                           Edit
+                        </button>
+                        <button
+                          onClick={() => { setMenuOpen(false); handleDelete(); }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center gap-2"
+                        >
+                           Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -145,11 +168,11 @@ const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, 
             />
           )}
 
-          <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="flex items-center justify-between mt-3 text-xs text-zinc-500 dark:text-zinc-400">
             <span>Posted by {question.createdBy?.name || 'Unknown'} {timeAgo(question.createdAt)}</span>
             <button
               onClick={() => onSelect(question)}
-              className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-xs font-medium"
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 text-white shadow-md hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 transition-all"
             >
               💬 Comments
             </button>

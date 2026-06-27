@@ -8,7 +8,7 @@ import Spinner from '../components/common/Spinner';
 
 const ForumPage = () => {
   const { user } = useAuth();
-  const { loading, fetchQuestions, fetchComments, voteOnQuestion, deleteQuestion, addComment, deleteComment, createQuestion, toggleBookmark, votePoll, likeComment } = useForum();
+  const { loading, fetchQuestions, fetchComments, voteOnQuestion, deleteQuestion, addComment, deleteComment, createQuestion, updateComment, updateQuestion, toggleBookmark, votePoll, likeComment } = useForum();
   const [questions, setQuestions] = useState([]);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState('');
@@ -17,6 +17,7 @@ const ForumPage = () => {
   const [allTags, setAllTags] = useState([]);
   const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [editingQuestion, setEditingQuestion] = useState(null);
 
   const loadQuestions = useCallback(async () => {
     const params = { sort };
@@ -51,8 +52,17 @@ const ForumPage = () => {
               commentCount: updated.commentCount ?? q.commentCount,
               isBookmarked: updated.isBookmarked ?? q.isBookmarked,
               pollHasVoted: updated.pollHasVoted ?? q.pollHasVoted,
-              pollSelectedOption: updated.pollSelectedOption ?? q.pollSelectedOption,
-              pollTotalVotes: updated.pollTotalVotes ?? q.pollTotalVotes,
+               pollSelectedOption: updated.pollSelectedOption ?? q.pollSelectedOption,
+               pollTotalVotes: updated.pollTotalVotes ?? q.pollTotalVotes,
+               poll: updated.pollOptions
+                 ? {
+                     ...q.poll,
+                     options: q.poll.options.map((opt, i) => ({
+                       ...opt,
+                       votes: Array.from({ length: updated.pollOptions[i]?.voteCount ?? opt.votes?.length ?? 0 }),
+                     })),
+                   }
+                 : q.poll,
             }
           : q
       )
@@ -185,6 +195,7 @@ const ForumPage = () => {
                 onBookmark={handleBookmark}
                 votePoll={votePoll}
                 onSelect={setSelectedQuestion}
+                onEdit={setEditingQuestion}
               />
             ))}
           </div>
@@ -199,6 +210,16 @@ const ForumPage = () => {
         />
       )}
 
+      {editingQuestion && (
+        <CreateQuestionModal
+          question={editingQuestion}
+          onClose={() => setEditingQuestion(null)}
+          onUpdated={loadQuestions}
+          createQuestion={createQuestion}
+          updateQuestion={updateQuestion}
+        />
+      )}
+
       {selectedQuestion && (
         <QuestionDetailModal
           question={selectedQuestion}
@@ -209,6 +230,7 @@ const ForumPage = () => {
           voteOnQuestion={voteOnQuestion}
           addComment={addComment}
           deleteComment={deleteComment}
+          updateComment={updateComment}
           fetchComments={fetchComments}
           onBookmark={handleBookmark}
           votePoll={votePoll}
