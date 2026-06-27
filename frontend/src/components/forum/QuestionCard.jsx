@@ -66,8 +66,8 @@ const QuestionCard = ({ question, onVote, onDelete, voteOnQuestion, onBookmark, 
 
   return (
     <div className="card p-0 hover:shadow-xl dark:hover:shadow-purple-900/50 hover:border-purple-200 dark:hover:border-purple-700 transition-all duration-300">
-      <div className="flex">
-        <div className="flex flex-col items-center gap-1 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-l-lg min-w-[72px]">
+      <div className="flex items-center">
+        <div className="flex flex-col items-center gap-1 p-4 bg-white dark:bg-zinc-900 rounded-l-lg min-w-[72px]">
           <button
             onClick={() => handleVote('up')}
             disabled={!user}
