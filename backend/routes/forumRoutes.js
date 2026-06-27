@@ -3,12 +3,14 @@ const {
   getQuestions,
   getQuestion,
   createQuestion,
+  updateQuestion,
   voteOnQuestion,
   deleteQuestion,
   addComment,
   getComments,
   toggleBookmark,
   votePoll,
+  updateComment,
   likeComment,
   deleteComment,
 } = require('../controllers/forumController');
@@ -38,9 +40,11 @@ router.post('/', authMiddleware, createQuestion);
 router.post('/:id/vote', authMiddleware, voteOnQuestion);
 router.post('/:id/bookmark', authMiddleware, toggleBookmark);
 router.post('/:id/poll/vote', authMiddleware, votePoll);
+router.put('/:id', authMiddleware, updateQuestion);
 router.delete('/:id', authMiddleware, deleteQuestion);
 router.get('/:id/comments', optionalAuth, getComments);
 router.post('/:id/comments', authMiddleware, addComment);
+router.put('/comments/:commentId', authMiddleware, updateComment);
 router.post('/comments/:commentId/like', authMiddleware, likeComment);
 router.delete('/comments/:commentId', authMiddleware, deleteComment);
 

@@ -220,6 +220,40 @@ const createQuestion = async (req, res) => {
   }
 };
 
+const updateQuestion = async (req, res) => {
+  try {
+    const { title, content, tags, poll } = req.body;
+    const question = await getQuestionOr404(req.params.id);
+
+    if (!sameId(question.createdBy, req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Not authorized to edit this question' });
+    }
+
+    if (title !== undefined) question.title = title.trim();
+    if (content !== undefined) question.content = content.trim();
+    if (tags !== undefined) question.tags = normalizeTags(tags);
+    if (poll !== undefined) {
+      if (poll.question && poll.options && poll.options.length >= 2) {
+        question.poll = {
+          question: poll.question.trim(),
+          options: poll.options.map((opt) => ({ text: opt.text.trim(), votes: opt.votes || [] })),
+          expiresAt: question.poll?.expiresAt || new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+        };
+      } else {
+        question.poll = undefined;
+      }
+    }
+
+    await question.save();
+
+    const populated = await question.populate('createdBy', 'name email course year');
+
+    res.json({ success: true, data: populated });
+  } catch (error) {
+    sendError(res, error, 'Failed to update question');
+  }
+};
+
 const voteOnQuestion = async (req, res) => {
   try {
     const { voteType } = req.body;
@@ -386,16 +420,50 @@ const votePoll = async (req, res) => {
 
     const pollTotalVotes = question.poll.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
 
+    const optionsWithCounts = question.poll.options.map((opt) => ({
+      text: opt.text,
+      voteCount: opt.votes?.length || 0,
+    }));
+
     res.json({
       success: true,
       data: {
         hasVoted: true,
         selectedOption: optionIndex,
         totalVotes: pollTotalVotes,
+        options: optionsWithCounts,
       },
     });
   } catch (error) {
     sendError(res, error, 'Failed to vote on poll');
+  }
+};
+
+const updateComment = async (req, res) => {
+  try {
+    const { content } = req.body;
+    const comment = await Comment.findById(req.params.commentId);
+
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Comment not found' });
+    }
+
+    if (!sameId(comment.author, req.user._id)) {
+      return res.status(403).json({ success: false, message: 'Only the comment author can edit this comment' });
+    }
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ success: false, message: 'Content is required' });
+    }
+
+    comment.content = content.trim();
+    await comment.save();
+
+    const populated = await comment.populate('author', 'name email course year');
+
+    res.json({ success: true, data: populated });
+  } catch (error) {
+    sendError(res, error, 'Failed to update comment');
   }
 };
 
@@ -455,12 +523,14 @@ module.exports = {
   getQuestions,
   getQuestion,
   createQuestion,
+  updateQuestion,
   voteOnQuestion,
   deleteQuestion,
   addComment,
   getComments,
   toggleBookmark,
   votePoll,
+  updateComment,
   likeComment,
   deleteComment,
 };
