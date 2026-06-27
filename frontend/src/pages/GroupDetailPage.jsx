@@ -36,6 +36,7 @@ const GroupDetailPage = () => {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState('info');
 
   const loadGroup = async () => {
     try {
@@ -193,7 +194,6 @@ const GroupDetailPage = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>
-            <GroupDashboard group={group} />
             {notice && (
               <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 rounded-lg">
                 {notice}
@@ -205,100 +205,148 @@ const GroupDetailPage = () => {
               </div>
             )}
 
-            {!canSeePrivateTools && (
-              <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">Access</h2>
-                {canRequest && (
-                  <button
-                    onClick={group.visibility === 'public' ? handleJoin : handleRequestJoin}
-                    disabled={loading}
-                    className="btn-primary w-full"
-                  >
-                    {group.visibility === 'public' ? 'Join Group' : 'Request to Join'}
-                  </button>
-                )}
-                {group.requestStatus === 'pending' && (
-                  <div className="space-y-3">
-                    <p className="text-amber-700 dark:text-amber-300 font-semibold">Your request is pending owner approval.</p>
-                    <button onClick={handleCancelRequest} disabled={loading} className="btn-primary w-full bg-gradient-to-r from-zinc-600 to-zinc-700">
-                      Cancel Request
-                    </button>
-                  </div>
-                )}
-                {group.isFull && !group.requestStatus && (
-                  <p className="text-zinc-600 dark:text-zinc-400">This group is full.</p>
-                )}
-              </div>
-            )}
-
-            {isCreator && (
+            {/* If user is not a member/creator, they just see the Dashboard & Join controls */}
+            {!canSeePrivateTools ? (
               <>
-                <JoinRequestsPanel
-                  requests={requests}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
-                  loading={loading}
-                />
-
-                <div className="card p-4 md:p-8 border-l-4 border-l-purple-600">
-                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">➕ Add Member</h2>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const email = e.target.email.value.trim();
-                      if (email) {
-                        handleInvite(email);
-                        e.target.reset();
-                      }
-                    }}
-                    className="flex flex-col md:flex-row gap-3"
-                  >
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      placeholder="Enter student email..."
-                      className="input-field flex-1"
-                    />
-                    <button type="submit" disabled={loading} className="btn-primary">
-                      Add Student
-                    </button>
-                  </form>
-                </div>
-
-                <div className="card p-4 md:p-8 border-l-4 border-l-blue-600">
-                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">Transfer Ownership</h2>
-                  <div className="flex flex-col md:flex-row gap-3">
-                    <select
-                      value={selectedOwner}
-                      onChange={(e) => setSelectedOwner(e.target.value)}
-                      className="input-field flex-1"
+                <GroupDashboard group={group} />
+                <div className="card p-4 md:p-8 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+                  <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">Access</h2>
+                  {canRequest && (
+                    <button
+                      onClick={group.visibility === 'public' ? handleJoin : handleRequestJoin}
+                      disabled={loading}
+                      className="btn-primary w-full"
                     >
-                      <option value="">Select a member</option>
-                      {group.members
-                        .filter((member) => !sameId(member, userId))
-                        .map((member) => (
-                          <option key={member._id || member.id} value={member._id || member.id}>
-                            {member.name}
-                          </option>
-                        ))}
-                    </select>
-                    <button onClick={handleTransfer} disabled={!selectedOwner || loading} className="btn-primary">
-                      Transfer
+                      {group.visibility === 'public' ? 'Join Group' : 'Request to Join'}
                     </button>
-                  </div>
+                  )}
+                  {group.requestStatus === 'pending' && (
+                    <div className="space-y-3">
+                      <p className="text-amber-700 dark:text-amber-300 font-semibold">Your request is pending owner approval.</p>
+                      <button onClick={handleCancelRequest} disabled={loading} className="btn-primary w-full bg-gradient-to-r from-zinc-600 to-zinc-700">
+                        Cancel Request
+                      </button>
+                    </div>
+                  )}
+                  {group.isFull && !group.requestStatus && (
+                    <p className="text-zinc-600 dark:text-zinc-400">This group is full.</p>
+                  )}
                 </div>
               </>
-            )}
+            ) : (
+              /* If user has private access, they get the tabs layout */
+              <>
+                {/* Tabs switcher */}
+                <div className="flex flex-wrap gap-2 p-1.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-inner">
+                  <button
+                    onClick={() => setActiveTab('info')}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      activeTab === 'info'
+                        ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                    }`}
+                  >
+                    ℹ️ Group Info
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('chat')}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      activeTab === 'chat'
+                        ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                    }`}
+                  >
+                    💬 Group Chat
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('members')}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      activeTab === 'members'
+                        ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                    }`}
+                  >
+                    👥 Members ({group.members?.length || 0})
+                  </button>
+                </div>
 
-            {canSeePrivateTools && (
-              <MemberList
-                members={group.members}
-                onKick={isCreator ? handleKick : null}
-                ownerId={group.createdBy?._id || group.createdBy}
-              />
+                {/* Tab contents */}
+                {activeTab === 'info' && (
+                  <div className="space-y-6">
+                    <GroupDashboard group={group} />
+                    {isCreator && (
+                      <div className="space-y-6">
+                        <JoinRequestsPanel
+                          requests={requests}
+                          onApprove={handleApprove}
+                          onReject={handleReject}
+                          loading={loading}
+                        />
+
+                        <div className="card p-4 md:p-8 border-l-4 border-l-purple-600">
+                          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">➕ Add Member</h2>
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              const email = e.target.email.value.trim();
+                              if (email) {
+                                handleInvite(email);
+                                e.target.reset();
+                              }
+                            }}
+                            className="flex flex-col md:flex-row gap-3"
+                          >
+                            <input
+                              type="email"
+                              name="email"
+                              required
+                              placeholder="Enter student email..."
+                              className="input-field flex-1"
+                            />
+                            <button type="submit" disabled={loading} className="btn-primary">
+                              Add Student
+                            </button>
+                          </form>
+                        </div>
+
+                        <div className="card p-4 md:p-8 border-l-4 border-l-blue-600">
+                          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">Transfer Ownership</h2>
+                          <div className="flex flex-col md:flex-row gap-3">
+                            <select
+                              value={selectedOwner}
+                              onChange={(e) => setSelectedOwner(e.target.value)}
+                              className="input-field flex-1"
+                            >
+                              <option value="">Select a member</option>
+                              {group.members
+                                .filter((member) => !sameId(member, userId))
+                                .map((member) => (
+                                  <option key={member._id || member.id} value={member._id || member.id}>
+                                    {member.name}
+                                  </option>
+                                ))}
+                            </select>
+                            <button onClick={handleTransfer} disabled={!selectedOwner || loading} className="btn-primary">
+                              Transfer
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'chat' && <GroupChat group={group} />}
+
+                {activeTab === 'members' && (
+                  <MemberList
+                    members={group.members}
+                    onKick={isCreator ? handleKick : null}
+                    ownerId={group.createdBy?._id || group.createdBy}
+                  />
+                )}
+              </>
             )}
-            {canSeePrivateTools && <GroupChat group={group} />}
           </>
         ) : (
           <div className="card p-4 md:p-8">

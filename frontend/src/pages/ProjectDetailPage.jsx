@@ -117,54 +117,66 @@ const ProjectDetailPage = () => {
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>
-            {/* Tabs for members and creator */}
-            {(isCreator || isMember) && (
-              <div className="flex gap-2 border-b border-zinc-200 dark:border-zinc-700">
-                <button
-                  onClick={() => setActiveTab('details')}
-                  className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
-                    activeTab === 'details'
-                      ? 'border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400'
-                      : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                  }`}
-                >
-                  📊 Details
-                </button>
+            {/* Tabs switcher */}
+            <div className="flex flex-wrap gap-2 p-1.5 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-inner">
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  activeTab === 'details'
+                    ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                }`}
+              >
+                📊 Details
+              </button>
+              <button
+                onClick={() => setActiveTab('members')}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  activeTab === 'members'
+                    ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                }`}
+              >
+                👥 Members ({project.members?.length || 0})
+              </button>
+              {(isCreator || isMember) && (
                 <button
                   onClick={() => setActiveTab('chat')}
-                  className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
                     activeTab === 'chat'
-                      ? 'border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400'
-                      : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
                   }`}
                 >
                   💬 Chat
                 </button>
-                {isCreator && (
-                  <button
-                    onClick={() => setActiveTab('applications')}
-                    className={`px-6 py-3 font-semibold border-b-2 transition-colors ${
-                      activeTab === 'applications'
-                        ? 'border-purple-600 dark:border-purple-400 text-purple-600 dark:text-purple-400'
-                        : 'border-transparent text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    📋 Applications {pendingApplicationCount > 0 && `(${pendingApplicationCount})`}
-                  </button>
-                )}
-              </div>
-            )}
+              )}
+              {isCreator && (
+                <button
+                  onClick={() => setActiveTab('applications')}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                    activeTab === 'applications'
+                      ? 'bg-white dark:bg-zinc-700 text-purple-600 dark:text-purple-400 shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                  }`}
+                >
+                  📋 Applications {pendingApplicationCount > 0 && `(${pendingApplicationCount})`}
+                </button>
+              )}
+            </div>
 
             {/* Details Tab */}
             {activeTab === 'details' && (
-              <>
-                <ProjectDashboard
-                  project={project}
-                  onStatusChange={handleStatusChange}
-                  onApply={handleRefreshProject}
-                />
-                <MemberList members={project.members || []} />
-              </>
+              <ProjectDashboard
+                project={project}
+                onStatusChange={handleStatusChange}
+                onApply={handleRefreshProject}
+              />
+            )}
+
+            {/* Members Tab */}
+            {activeTab === 'members' && (
+              <MemberList members={project.members || []} />
             )}
 
             {/* Chat Tab */}
