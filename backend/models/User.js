@@ -21,11 +21,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    branch: {
+      type: String,
+      default: '',
+    },
     year: {
       type: Number,
       required: true,
       min: 0,
       max: 6,
+    },
+    avatar: {
+      type: String,
+      default: '',
     },
     groupsJoined: [
       {

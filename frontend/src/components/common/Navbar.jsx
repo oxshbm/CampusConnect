@@ -45,7 +45,7 @@ const Navbar = ({ onMobileToggle = () => {} }) => {
                   {/* Avatar circle */}
                   <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center
                                   font-bold text-sm text-white flex-shrink-0">
-                    {user.name.charAt(0).toUpperCase()}
+                    {user.avatar ? user.avatar : user.name.charAt(0).toUpperCase()}
                   </div>
                   {/* Name - hidden on small screens */}
                   <span className="text-sm font-medium text-purple-100 hidden sm:inline">{user.name}</span>

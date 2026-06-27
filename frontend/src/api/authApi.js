@@ -1,12 +1,14 @@
 import axiosInstance from './axiosInstance';
 
-export const signup = async (name, email, password, course, year) => {
+export const signup = async (name, email, password, course, year, branch, avatar) => {
   const response = await axiosInstance.post('/auth/signup', {
     name,
     email,
     password,
     course,
     year,
+    branch,
+    avatar,
   });
   return response.data;
 };
@@ -25,11 +27,13 @@ export const getMe = async () => {
   return response.data;
 };
 
-export const updateMe = async (name, course, year) => {
+export const updateMe = async (name, course, year, branch, avatar) => {
   const response = await axiosInstance.put('/auth/me', {
     name,
     course,
     year,
+    branch,
+    avatar,
   });
   return response.data;
 };

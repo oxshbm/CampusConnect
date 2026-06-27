@@ -56,7 +56,7 @@ const AlumniCard = ({ alumni, sentConnections = [], onConnectionSent }) => {
       {/* Header with Avatar */}
       <div className="flex items-center gap-4 mb-4">
         <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
-          {alumni.name.charAt(0).toUpperCase()}
+          {alumni.avatar ? alumni.avatar : alumni.name.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">{alumni.name}</h3>

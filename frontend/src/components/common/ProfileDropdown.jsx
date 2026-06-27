@@ -41,7 +41,7 @@ const ProfileDropdown = ({ onClose }) => {
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center
                           text-white font-bold text-2xl flex-shrink-0">
-            {user.name.charAt(0).toUpperCase()}
+            {user.avatar ? user.avatar : user.name.charAt(0).toUpperCase()}
           </div>
           <div>
             <p className="text-white font-bold text-lg leading-tight">{user.name}</p>

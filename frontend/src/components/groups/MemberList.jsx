@@ -22,7 +22,7 @@ const MemberList = ({ members, onKick, ownerId }) => {
               className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-zinc-50 dark:from-purple-900 dark:to-zinc-800 rounded-lg border border-purple-100 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md dark:hover:shadow-purple-900/50 transition-all duration-300"
             >
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 dark:from-purple-600 dark:to-purple-800 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                {member.name.charAt(0).toUpperCase()}
+                {member.avatar ? member.avatar : member.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

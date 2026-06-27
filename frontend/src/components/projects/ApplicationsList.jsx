@@ -45,7 +45,9 @@ const ApplicationsList = ({ applications, onApprove, onReject, loading }) => {
           >
             {/* Avatar */}
             <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-700 dark:from-amber-600 dark:to-amber-800 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-              {application.user && application.user.name
+              {application.user && application.user.avatar
+                ? application.user.avatar
+                : application.user && application.user.name
                 ? application.user.name.charAt(0).toUpperCase()
                 : '?'}
             </div>

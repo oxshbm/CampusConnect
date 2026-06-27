@@ -1,10 +1,14 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const StudyGroup = require('../models/StudyGroup');
+const Project = require('../models/Project');
+const Club = require('../models/Club');
+const Event = require('../models/Event');
 
 const signup = async (req, res) => {
   try {
-    const { name, email, password, course, year } = req.body;
+    const { name, email, password, course, year, branch, avatar } = req.body;
 
     // Validate input
     if (!name || !email || !password || !course || year === undefined) {
@@ -27,6 +31,8 @@ const signup = async (req, res) => {
       password: hashedPassword,
       course,
       year,
+      branch: branch || '',
+      avatar: avatar || '',
       isVerified: true,
     });
     await user.save();
@@ -47,6 +53,8 @@ const signup = async (req, res) => {
           email: user.email,
           course: user.course,
           year: user.year,
+          branch: user.branch || '',
+          avatar: user.avatar || '',
           role: user.role,
         },
       },
@@ -103,6 +111,7 @@ const login = async (req, res) => {
           email: user.email,
           course: user.course,
           year: user.year,
+          branch: user.branch || '',
           role: user.role,
         },
       },
@@ -122,6 +131,16 @@ const getMe = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Account suspended.' });
     }
 
+    const userId = req.user._id;
+
+    // Fetch user-related entities
+    const [groupsCreated, projects, clubs, events] = await Promise.all([
+      StudyGroup.find({ createdBy: userId }),
+      Project.find({ $or: [{ createdBy: userId }, { members: userId }] }),
+      Club.find({ $or: [{ createdBy: userId }, { members: userId }] }),
+      Event.find({ attendees: userId }),
+    ]);
+
     res.json({
       success: true,
       data: {
@@ -130,8 +149,14 @@ const getMe = async (req, res) => {
         email: user.email,
         course: user.course,
         year: user.year,
-        groupsJoined: user.groupsJoined,
+        branch: user.branch || '',
+        avatar: user.avatar || '',
         role: user.role,
+        groupsJoined: user.groupsJoined || [],
+        groupsCreated: groupsCreated || [],
+        projects: projects || [],
+        clubs: clubs || [],
+        events: events || [],
       },
     });
   } catch (error) {
@@ -142,11 +167,17 @@ const getMe = async (req, res) => {
 
 const updateMe = async (req, res) => {
   try {
-    const { name, course, year } = req.body;
+    const { name, course, year, branch, avatar } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { ...(name && { name }), ...(course && { course }), ...(year !== undefined && { year }) },
+      { 
+        ...(name && { name }), 
+        ...(course && { course }), 
+        ...(year !== undefined && { year }),
+        ...(branch !== undefined && { branch }),
+        ...(avatar !== undefined && { avatar })
+      },
       { new: true }
     );
 
@@ -158,6 +189,8 @@ const updateMe = async (req, res) => {
         email: user.email,
         course: user.course,
         year: user.year,
+        branch: user.branch || '',
+        avatar: user.avatar || '',
       },
     });
   } catch (error) {
