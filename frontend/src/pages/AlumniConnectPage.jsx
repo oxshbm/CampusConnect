@@ -115,8 +115,8 @@ const AlumniConnectPage = () => {
         )}
 
         {/* Filter Card */}
-        <div className="card p-6 mb-12 border-l-4 border-l-purple-600">
-          <h2 className="text-lg font-bold mb-4">Filter Alumni</h2>
+        <div className="card p-4 md:p-8 mb-12 border-l-4 border-l-purple-600 dark:border-l-purple-500">
+          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Filter Alumni</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div>
