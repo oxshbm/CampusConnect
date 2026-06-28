@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useForum } from '../hooks/useForum';
 import QuestionCard from '../components/forum/QuestionCard';
@@ -18,13 +18,16 @@ const ForumPage = () => {
   const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const latestRequest = useRef(0);
 
   const loadQuestions = useCallback(async () => {
+    const requestId = ++latestRequest.current;
     const params = { sort };
     if (search.trim()) params.q = search.trim();
     if (activeTag) params.tag = activeTag;
     if (bookmarkedOnly && user) params.bookmarked = 'true';
     const data = await fetchQuestions(params);
+    if (requestId !== latestRequest.current) return;
     setQuestions(data);
     const tags = [...new Set(data.flatMap((q) => q.tags || []))].sort();
     setAllTags(tags);
@@ -40,8 +43,8 @@ const ForumPage = () => {
   };
 
   const handleVote = (questionId, updated) => {
-    setQuestions((prev) =>
-      prev.map((q) =>
+    setQuestions((prev) => {
+      const next = prev.map((q) =>
         q._id === questionId
           ? {
               ...q,
@@ -52,21 +55,23 @@ const ForumPage = () => {
               commentCount: updated.commentCount ?? q.commentCount,
               isBookmarked: updated.isBookmarked ?? q.isBookmarked,
               pollHasVoted: updated.pollHasVoted ?? q.pollHasVoted,
-               pollSelectedOption: updated.pollSelectedOption ?? q.pollSelectedOption,
-               pollTotalVotes: updated.pollTotalVotes ?? q.pollTotalVotes,
-               poll: updated.pollOptions
-                 ? {
-                     ...q.poll,
-                     options: q.poll.options.map((opt, i) => ({
-                       ...opt,
-                       votes: Array.from({ length: updated.pollOptions[i]?.voteCount ?? opt.votes?.length ?? 0 }),
-                     })),
-                   }
-                 : q.poll,
+              pollSelectedOption: updated.pollSelectedOption ?? q.pollSelectedOption,
+              pollTotalVotes: updated.pollTotalVotes ?? q.pollTotalVotes,
+              poll: updated.pollOptions
+                ? {
+                    ...q.poll,
+                    options: q.poll.options.map((opt, i) => ({
+                      ...opt,
+                      votes: Array.from({ length: updated.pollOptions[i]?.voteCount ?? opt.votes?.length ?? 0 }),
+                    })),
+                  }
+                : q.poll,
             }
           : q
-      )
-    );
+      );
+      if (sort === 'votes') next.sort((a, b) => b.upvoteCount - a.upvoteCount);
+      return next;
+    });
   };
 
   const handleDelete = async (questionId) => {
