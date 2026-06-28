@@ -113,7 +113,7 @@ const ProjectDetailPage = () => {
   const pendingApplicationCount = applications.filter((a) => a.status === 'pending').length;
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
+    <div className="py-6 md:py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>

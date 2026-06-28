@@ -170,7 +170,7 @@ const GroupDetailPage = () => {
 
   if (!group) {
     return (
-      <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
+      <div className="py-6 md:py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="card p-4 md:p-8 border-l-4 border-l-red-600">
             <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Group Unavailable</h1>
@@ -190,7 +190,7 @@ const GroupDetailPage = () => {
   const canSeePrivateTools = isMember || isCreator;
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-12 px-4">
+    <div className="py-6 md:py-12 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {!isEditing ? (
           <>

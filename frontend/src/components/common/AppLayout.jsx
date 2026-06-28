@@ -25,7 +25,7 @@ const AppLayout = () => {
         <Sidebar mobileOpen={mobileOpen} onCloseMobile={handleCloseMobile} />
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-auto w-full">
+        <main className="flex-1 overflow-auto w-full bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900">
           <Outlet />
         </main>
       </div>

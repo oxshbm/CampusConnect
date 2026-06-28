@@ -48,7 +48,6 @@ const Sidebar = ({ mobileOpen = false, onCloseMobile = () => {} }) => {
           transition-all duration-300
           hidden md:flex
           ${isOpen ? 'w-64' : 'w-16'}
-          h-screen
           sticky left-0 top-16
           md:relative md:top-0
           ${mobileOpen ? 'fixed left-0 top-16 z-50 h-[calc(100vh-4rem)]' : ''}

@@ -110,7 +110,7 @@ const EventsPage = () => {
   }
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 py-6 md:py-6 md:py-12 px-4">
+    <div className="py-6 md:py-6 md:py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8 md:mb-12 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
