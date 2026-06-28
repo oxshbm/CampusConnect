@@ -96,11 +96,11 @@ const AlumniConnectPage = () => {
   const uniqueYears = getUniqueYears();
 
   return (
-    <div className="bg-gradient-to-b from-zinc-50 to-emerald-50 dark:from-zinc-950 dark:to-zinc-900 min-h-screen py-6 md:py-6 md:py-12 px-4">
+    <div className="bg-gradient-to-b from-zinc-50 to-purple-50 dark:from-zinc-950 dark:to-zinc-900 min-h-screen py-6 md:py-6 md:py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 dark:from-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-400 dark:to-purple-500 bg-clip-text text-transparent mb-3">
             Alumni Connect
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400 text-lg">
@@ -115,7 +115,7 @@ const AlumniConnectPage = () => {
         )}
 
         {/* Filter Card */}
-        <div className="card p-6 mb-12 border-l-4 border-l-emerald-600">
+        <div className="card p-6 mb-12 border-l-4 border-l-purple-600">
           <h2 className="text-lg font-bold mb-4">Filter Alumni</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
